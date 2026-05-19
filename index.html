@@ -96,6 +96,16 @@
 
     /* ===== Toolbar ===== */
     .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    /* ===== Level filter bar ===== */
+    .level-filter{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    /* ===== Card picker ===== */
+    .card-pick-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;padding:2px 0;}
+    .card-pick-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #f0f0f0;border-radius:6px;cursor:pointer;transition:all .15s;user-select:none;}
+    .card-pick-item:hover{background:#f0f7ff;border-color:#91caff;}
+    .card-pick-item.checked{border-color:#1890ff;background:#e6f4ff;}
+    .card-pick-item input[type=checkbox]{width:16px;height:16px;accent-color:#1890ff;flex-shrink:0;cursor:pointer;}
+    .pick-card-name{font-size:13px;color:#333;font-weight:500;flex:1;}
+    .pick-card-meta{font-size:12px;color:#999;white-space:nowrap;}
 
     /* ===== Buttons ===== */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 16px;border-radius:4px;font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .2s;line-height:1.4;white-space:nowrap;font-family:inherit;}
@@ -162,6 +172,13 @@
 
     /* ===== Notice ===== */
     .notice{background:#e6f7ff;border:1px solid #91d5ff;border-radius:4px;padding:10px 14px;font-size:12px;color:#1890ff;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    /* ===== Help tooltip ===== */
+    .help-wrap{position:relative;display:inline-flex;align-items:center;}
+    .help-btn{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#d9d9d9;color:#555;font-size:11px;cursor:pointer;border:none;font-family:inherit;transition:all .2s;line-height:1;font-weight:600;}
+    .help-btn:hover{background:#1890ff;color:#fff;}
+    .help-popover{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:200;background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:10px 14px;font-size:13px;color:#555;line-height:1.7;box-shadow:0 4px 16px rgba(0,0,0,.12);width:280px;display:block;opacity:0;pointer-events:none;transition:opacity .15s;font-weight:400;white-space:normal;}
+    .help-wrap:hover .help-popover{opacity:1;pointer-events:auto;}
+    .help-popover::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:#fff;border-left:1px solid #e8e8e8;border-top:1px solid #e8e8e8;}
 
     /* ===== Empty ===== */
     .empty{text-align:center;padding:48px 0;color:#bbb;}
@@ -202,6 +219,7 @@
         <div class="sub-item" onclick="setActive(this)">代理列表</div>
         <div class="sub-item" onclick="setActive(this)">代理开户数</div>
         <div class="sub-item active" onclick="setActive(this)">代理商级别管理</div>
+        <a href="体验卡管理.html" class="sub-item" style="text-decoration:none;">体验卡管理</a>
       </div>
     </div>
 
@@ -366,6 +384,17 @@
             <div class="card-title"><span class="card-title-bar"></span>代理商级别列表</div>
             <button class="btn btn-primary btn-sm" onclick="openLevelModal()">＋ 新增级别</button>
           </div>
+          <div class="level-filter">
+            <label style="font-size:13px;color:#555;">级别名称</label>
+            <input class="inp inp-w180" id="lf-name" placeholder="请输入级别名称" oninput="renderLevelList()" />
+            <label style="font-size:13px;color:#555;margin-left:12px;">级别状态</label>
+            <select class="sel sel-w140" id="lf-status" onchange="renderLevelList()">
+              <option value="">全部状态</option>
+              <option value="1">已启用</option>
+              <option value="0">已禁用</option>
+            </select>
+            <button class="btn btn-default btn-sm" style="margin-left:4px;" onclick="doLevelReset()">重置</button>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead>
@@ -384,110 +413,25 @@
         </div>
       </div>
 
-      <!-- ===== VIEW 2: Card Config ===== -->
-      <div id="view-cards" style="display:none;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#999;margin-bottom:16px;">
-          <span style="color:#1890ff;cursor:pointer;" onclick="showLevelList()">代理商级别管理</span>
-          <span>›</span>
-          <span id="sub-crumb-level" style="color:#555;font-weight:500;">省代</span>
-          <span>›</span>
-          <span>体验卡配置</span>
-        </div>
-        <div class="card" style="margin-bottom:16px;">
-          <div class="card-body" style="padding:14px 20px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-              <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
-                <div><span style="font-size:12px;color:#999;">当前级别</span><div style="font-weight:600;font-size:15px;margin-top:3px;" id="info-level-name">省代</div></div>
-                <div style="width:1px;height:32px;background:#f0f0f0;"></div>
-                <div><span style="font-size:12px;color:#999;">折扣比例</span><div style="font-weight:700;color:#1890ff;font-size:15px;margin-top:3px;" id="info-discount">75%</div></div>
-                <div style="width:1px;height:32px;background:#f0f0f0;"></div>
-                <div><span style="font-size:12px;color:#999;">采购说明</span><div style="font-size:12px;color:#666;margin-top:3px;" id="info-desc">如 75 表示通过代理商购买为 75%</div></div>
-              </div>
-              <button class="btn btn-default btn-sm" onclick="openLevelModalForCur()">✎ 编辑配置</button>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-bar"></span>体验卡配置</div>
-            <button class="btn btn-primary btn-sm" onclick="openCardModal()">＋ 新增体验卡</button>
-          </div>
-          <div class="card-body" style="padding:0;">
-            <div class="notice" style="margin:16px 20px 12px;">ℹ 体验卡配置决定该级别代理商可以向用户开通的卡种、时长与价格。</div>
-            <div class="tbl-wrap" style="padding:0 20px 20px;">
-              <table>
-                <thead>
-                  <tr>
-                    <th class="col-no">编号</th>
-                    <th>卡名称</th>
-                    <th>有效天数</th>
-                    <th>价格（元）</th>
-                    <th>状态</th>
-                    <th class="col-ops">操作</th>
-                  </tr>
-                </thead>
-                <tbody id="cards-tbody"></tbody>
-              </table>
-              <div id="cards-empty" class="empty" style="display:none;"><div class="empty-icon">🃏</div><p>暂无体验卡，点击右上角「新增体验卡」添加</p></div>
-              <div class="pager">
-                <span class="pager-info">共 <span id="total-count">0</span> 条</span>
-                <select class="pg-sel" id="pg-size"><option value="10">10/页</option><option value="20" selected>20/页</option><option value="50">50/页</option></select>
-                <button class="pg-btn" id="pg-prev" onclick="changePage(-1)">&#8249;</button>
-                <span id="pg-nums"></span>
-                <button class="pg-btn" id="pg-next" onclick="changePage(1)">&#8250;</button>
-                <span style="font-size:12px;color:#aaa;margin-left:6px;">前往</span>
-                <input class="pg-sel" id="pg-jump" type="number" min="1" style="width:50px;" value="1" onchange="jumpPage(this.value)" />
-                <span style="font-size:12px;color:#aaa;">页</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="padding-top:4px;"><button class="btn btn-default" onclick="showLevelList()">← 返回级别列表</button></div>
-      </div><!-- /view-cards -->
 
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- ===== MODAL ===== -->
-<div class="modal-bg" id="modal-bg" onclick="bgClose(event)">
-  <div class="modal">
+<!-- ===== 体验卡选择 MODAL ===== -->
+<div class="modal-bg" id="picker-bg" onclick="pickerBgClose(event)">
+  <div class="modal" style="width:520px;">
     <div class="modal-head">
-      <span class="modal-title" id="modal-title">新增体验卡</span>
-      <span class="modal-x" onclick="closeModal()">✕</span>
+      <span class="modal-title" id="picker-title">体验卡配置</span>
+      <span class="modal-x" onclick="closeCardPicker()">✕</span>
     </div>
-    <div class="modal-body">
-      <div class="mg">
-        <label><span class="req">*</span>卡名称 <span style="font-size:12px;color:#aaa;font-weight:400;">（可自定义显示名称）</span></label>
-        <input class="inp" id="f-name" placeholder="如：暑期特惠体验卡" />
-      </div>
-      <div class="mg">
-        <label><span class="req">*</span>有效天数</label>
-        <div class="inp-addon">
-          <input class="inp" id="f-days" type="number" min="1" placeholder="如：30" style="width:100%;" />
-          <span class="addon-txt">天</span>
-        </div>
-        <div class="form-hint">常见设置：体验卡 30天 / 月卡 30天 / 季卡 90天 / 半年卡 180天 / 年卡 365天</div>
-      </div>
-      <div class="mg">
-        <label><span class="req">*</span>价格（元）</label>
-        <div class="inp-addon">
-          <input class="inp" id="f-price" type="number" min="0" step="0.01" placeholder="如：99.00" style="width:100%;" />
-          <span class="addon-txt">元</span>
-        </div>
-      </div>
-      <div class="mg" style="margin-bottom:0;">
-        <label>状态</label>
-        <div class="sw" onclick="toggleSw(this)">
-          <div class="sw-track on"><div class="sw-thumb"></div></div>
-          <span class="sw-label" id="sw-text">已启用</span>
-        </div>
-        <input type="hidden" id="f-status" value="1" />
-      </div>
+    <div class="modal-body" style="padding:16px 22px;">
+      <p style="font-size:12px;color:#999;margin-bottom:12px;">从体验卡管理中选择适用于该级别的体验卡</p>
+      <div class="card-pick-list" id="card-pick-list"></div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-default" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveCard()">确定保存</button>
+      <button class="btn btn-default" onclick="closeCardPicker()">取消</button>
+      <button class="btn btn-primary" onclick="saveCardPicker()">确定保存</button>
     </div>
   </div>
 </div>
@@ -547,35 +491,22 @@
 
 <script>
 // ===== DATA =====
+const CARDS = [
+  {id:1,name:'体验卡',days:7,price:9.9},
+  {id:2,name:'月卡',days:30,price:49},
+  {id:3,name:'季卡',days:90,price:129},
+  {id:4,name:'半年卡',days:180,price:229},
+  {id:5,name:'年卡',days:365,price:399},
+];
 const DATA = [
-  {name:'省代',icon:'🏆',discount:75,status:1,cards:[
-    {id:1,type:'体验卡',name:'省代体验卡',days:30,price:15,status:1},
-    {id:2,type:'月卡',name:'省代月卡',days:30,price:99,status:1},
-    {id:3,type:'季卡',name:'省代季卡',days:90,price:259,status:1},
-    {id:4,type:'半年卡',name:'省代半年卡',days:180,price:459,status:1},
-    {id:5,type:'年卡',name:'省代年卡',days:365,price:799,status:1}]},
-  {name:'市代',icon:'🏙',discount:80,status:1,cards:[
-    {id:1,type:'体验卡',name:'市代体验卡',days:30,price:18,status:1},
-    {id:2,type:'月卡',name:'市代月卡',days:30,price:109,status:1},
-    {id:3,type:'季卡',name:'市代季卡',days:90,price:279,status:1},
-    {id:4,type:'半年卡',name:'市代半年卡',days:180,price:499,status:0},
-    {id:5,type:'年卡',name:'市代年卡',days:365,price:869,status:1}]},
-  {name:'区代',icon:'📍',discount:85,status:1,cards:[
-    {id:1,type:'体验卡',name:'区代体验卡',days:30,price:20,status:1},
-    {id:2,type:'月卡',name:'区代月卡',days:30,price:119,status:1},
-    {id:3,type:'季卡',name:'区代季卡',days:90,price:299,status:1},
-    {id:4,type:'年卡',name:'区代年卡',days:365,price:929,status:1}]},
-  {name:'校园代理',icon:'🎓',discount:90,status:1,cards:[
-    {id:1,type:'体验卡',name:'校园体验卡',days:7,price:9.9,status:1},
-    {id:2,type:'月卡',name:'校园月卡',days:30,price:49,status:1},
-    {id:3,type:'季卡',name:'校园季卡',days:90,price:129,status:1}]}
+  {name:'省代',icon:'�',discount:75,status:1,selectedCards:[1,2,3,4,5]},
+  {name:'市代',icon:'🏙',discount:80,status:1,selectedCards:[1,2,3,4,5]},
+  {name:'区代',icon:'📍',discount:85,status:1,selectedCards:[1,2,3,4]},
+  {name:'校园代理',icon:'🎓',discount:90,status:1,selectedCards:[1,2,3]},
 ];
 
 let curLevel = 0;
-let editCardId = null;
 let editDiscLevel = -1;
-let pageNum = 1;
-let pageSize = 20;
 
 // ===== SIDEBAR =====
 function toggleNav(el){ el.classList.toggle('open'); }
@@ -584,32 +515,54 @@ function setActive(el){
   el.classList.add('active');
 }
 
-// ===== VIEW SWITCHING =====
-function showLevelList(){
-  document.getElementById('view-list').style.display='';
-  document.getElementById('view-cards').style.display='none';
+// ===== CARD PICKER =====
+function openCardPicker(idx){
+  curLevel=idx;
+  const d=DATA[idx];
+  document.getElementById('picker-title').textContent='体验卡配置 — '+d.name;
+  const list=document.getElementById('card-pick-list');
+  list.innerHTML=CARDS.map(c=>{
+    const checked=d.selectedCards.includes(c.id);
+    return `<label class="card-pick-item${checked?' checked':''}" onclick="togglePickItem(this)">
+      <input type="checkbox" value="${c.id}"${checked?' checked':''} onclick="event.stopPropagation();togglePickItem(this.closest('.card-pick-item'))" />
+      <span class="pick-card-name">${c.name}</span>
+      <span class="pick-card-meta">${c.days} 天 &nbsp;¥${Number(c.price).toFixed(2)}</span>
+    </label>`;
+  }).join('');
+  document.getElementById('picker-bg').classList.add('show');
+}
+function togglePickItem(item){
+  const cb=item.querySelector('input[type=checkbox]');
+  cb.checked=!cb.checked;
+  item.classList.toggle('checked',cb.checked);
+}
+function closeCardPicker(){ document.getElementById('picker-bg').classList.remove('show'); }
+function pickerBgClose(e){ if(e.target===document.getElementById('picker-bg')) closeCardPicker(); }
+function saveCardPicker(){
+  const checked=[...document.querySelectorAll('#card-pick-list input[type=checkbox]:checked')].map(cb=>parseInt(cb.value));
+  DATA[curLevel].selectedCards=checked;
+  closeCardPicker();
   renderLevelList();
-}
-function goToCards(idx){
-  curLevel=idx; pageNum=1;
-  document.getElementById('view-list').style.display='none';
-  document.getElementById('view-cards').style.display='';
-  updateInfoBar();
-  renderCardsTable();
-}
-function updateInfoBar(){
-  const d=DATA[curLevel];
-  document.getElementById('sub-crumb-level').textContent=d.name;
-  document.getElementById('info-level-name').textContent=d.name;
-  document.getElementById('info-discount').textContent=d.discount+'%';
-  document.getElementById('info-desc').textContent='通过代理商购买以 '+d.discount+'% ';
+  showToast('体验卡配置已保存');
 }
 
 // ===== LEVEL LIST =====
+function doLevelReset(){
+  document.getElementById('lf-name').value='';
+  document.getElementById('lf-status').value='';
+  renderLevelList();
+}
 function renderLevelList(){
+  const nm=(document.getElementById('lf-name')||{value:''}).value.trim().toLowerCase();
+  const st=(document.getElementById('lf-status')||{value:''}).value;
   const tbody=document.getElementById('level-tbody');
-  tbody.innerHTML=DATA.map((d,i)=>{
-    const cnt=d.cards.length;
+  const list=DATA.map((d,i)=>({...d,_i:i})).filter(d=>{
+    if(nm && !d.name.toLowerCase().includes(nm)) return false;
+    if(st!=='' && d.status!==parseInt(st)) return false;
+    return true;
+  });
+  tbody.innerHTML=list.map(({_i:i,...d})=>{
+    const cnt=(d.selectedCards||[]).length;
     const cntHtml=cnt>0
       ?`<span style="color:#52c41a;font-weight:600;">${cnt}</span> 张<span style="color:#aaa;font-size:12px;margin-left:4px;">（已配置）</span>`
       :`<span style="color:#faad14;font-weight:600;">0</span> 张<span style="color:#faad14;font-size:12px;margin-left:4px;">（未配置）</span>`;
@@ -623,7 +576,7 @@ function renderLevelList(){
       <td>${cntHtml}</td>
       <td>${stHtml}</td>
       <td style="text-align:center;">
-        <button class="btn-link" onclick="goToCards(${i})">体验卡配置</button>
+        <button class="btn-link" onclick="openCardPicker(${i})">体验卡配置</button>
         <span style="color:#e8e8e8;margin:0 2px;">|</span>
         <button class="btn-link" onclick="openLevelModal(${i})">编辑</button>
         <span style="color:#e8e8e8;margin:0 2px;">|</span>
@@ -647,7 +600,6 @@ function deleteLevel(idx){
   showConfirm('删除级别',
     '确定删除「'+DATA[idx].name+'」级别？此操作不可恢复！',
     ()=>{
-      if(curLevel===idx&&document.getElementById('view-cards').style.display!=='none') showLevelList();
       DATA.splice(idx,1);
       renderLevelList();
       showToast('级别已删除');
@@ -674,7 +626,6 @@ function openLevelModal(idx=null){
   }
   document.getElementById('disc-modal-bg').classList.add('show');
 }
-function openLevelModalForCur(){ openLevelModal(curLevel); }
 function closeEditDiscount(){ document.getElementById('disc-modal-bg').classList.remove('show'); }
 function discBgClose(e){ if(e.target===document.getElementById('disc-modal-bg')) closeEditDiscount(); }
 function saveDiscount(){
@@ -684,143 +635,16 @@ function saveDiscount(){
   if(!name){ alert('请填写级别名称'); return; }
   if(isNaN(v)||v<1||v>100){ alert('请输入 1~100 之间的折扣比例'); return; }
   if(editDiscLevel===null){
-    DATA.push({name,discount:v,status,cards:[]});
+    DATA.push({name,discount:v,status,selectedCards:[]});
     showToast('级别已新增');
   } else {
     Object.assign(DATA[editDiscLevel],{name,discount:v,status});
-    if(document.getElementById('view-cards').style.display!=='none'&&curLevel===editDiscLevel){
-      updateInfoBar(); renderCardsTable();
-    }
     showToast('级别已更新');
   }
   closeEditDiscount();
   renderLevelList();
 }
 
-// ===== CARDS TABLE =====
-function renderCardsTable(){
-  const cards=DATA[curLevel].cards;
-  const total=cards.length;
-  document.getElementById('total-count').textContent=total;
-  const start=(pageNum-1)*pageSize;
-  const slice=cards.slice(start,start+pageSize);
-  const tbody=document.getElementById('cards-tbody');
-  const empty=document.getElementById('cards-empty');
-  if(total===0){ tbody.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  tbody.innerHTML=slice.map((c,i)=>{
-    const stHtml=c.status===1
-      ?`<span class="status-on"><span class="dot"></span>已启用</span>`
-      :`<span class="status-off"><span class="dot"></span>已禁用</span>`;
-    return `<tr>
-      <td>${start+i+1}</td>
-      <td>${c.name}</td>
-      <td><b>${c.days}</b> 天</td>
-      <td>¥ ${c.price.toFixed(2)}</td>
-      <td>${stHtml}</td>
-      <td style="text-align:center;">
-        <button class="btn-link" onclick="editCard(${c.id})">修改</button>
-        <span style="color:#e8e8e8;margin:0 2px;">|</span>
-        <button class="btn-link" onclick="toggleCardStatus(${c.id})">${c.status===1?'禁用':'启用'}</button>
-        <span style="color:#e8e8e8;margin:0 2px;">|</span>
-        <button class="btn-link-danger" onclick="deleteCard(${c.id})">删除</button>
-      </td></tr>`;
-  }).join('');
-  renderPager(total);
-}
-
-// ===== PAGER =====
-function renderPager(total){
-  const pages=Math.max(1,Math.ceil(total/pageSize));
-  let html='';
-  for(let i=1;i<=pages;i++) html+=`<button class="pg-btn${i===pageNum?' active':''}" onclick="gotoPage(${i})">${i}</button>`;
-  document.getElementById('pg-nums').innerHTML=html;
-  document.getElementById('pg-prev').disabled=pageNum<=1;
-  document.getElementById('pg-next').disabled=pageNum>=pages;
-}
-function changePage(delta){
-  const pages=Math.max(1,Math.ceil(DATA[curLevel].cards.length/pageSize));
-  pageNum=Math.min(Math.max(1,pageNum+delta),pages);
-  renderCardsTable();
-}
-function gotoPage(p){ pageNum=p; renderCardsTable(); }
-function jumpPage(v){ gotoPage(parseInt(v)||1); }
-document.getElementById('pg-size').addEventListener('change',function(){ pageSize=parseInt(this.value); pageNum=1; renderCardsTable(); });
-
-// ===== CARD CRUD =====
-function openCardModal(id=null){
-  editCardId=id;
-  const track=document.querySelector('#modal-bg .sw-track');
-  if(id===null){
-    document.getElementById('modal-title').textContent='新增体验卡';
-    document.getElementById('f-name').value='';
-    document.getElementById('f-days').value='';
-    document.getElementById('f-price').value='';
-    track.classList.add('on');
-    document.getElementById('sw-text').textContent='已启用';
-    document.getElementById('f-status').value='1';
-  } else {
-    const c=DATA[curLevel].cards.find(x=>x.id===id);
-    if(!c) return;
-    document.getElementById('modal-title').textContent='编辑体验卡';
-    document.getElementById('f-name').value=c.name;
-    document.getElementById('f-days').value=c.days;
-    document.getElementById('f-price').value=c.price;
-    if(c.status===1){ track.classList.add('on'); document.getElementById('sw-text').textContent='已启用'; document.getElementById('f-status').value='1'; }
-    else { track.classList.remove('on'); document.getElementById('sw-text').textContent='已禁用'; document.getElementById('f-status').value='0'; }
-  }
-  document.getElementById('modal-bg').classList.add('show');
-}
-function editCard(id){ openCardModal(id); }
-function closeModal(){ document.getElementById('modal-bg').classList.remove('show'); }
-function bgClose(e){ if(e.target===document.getElementById('modal-bg')) closeModal(); }
-function saveCard(){
-  const name=document.getElementById('f-name').value.trim();
-  const days=parseInt(document.getElementById('f-days').value);
-  const price=parseFloat(document.getElementById('f-price').value);
-  const status=parseInt(document.getElementById('f-status').value);
-  if(!name){ alert('请填写卡名称'); return; }
-  if(!days||days<1){ alert('请填写有效天数'); return; }
-  if(isNaN(price)||price<0){ alert('请填写正确的零售价'); return; }
-  const cards=DATA[curLevel].cards;
-  if(editCardId===null){
-    const maxId=cards.length>0?Math.max(...cards.map(c=>c.id)):0;
-    cards.push({id:maxId+1,name,days,price,status});
-    showToast('体验卡已新增');
-  } else {
-    const idx=cards.findIndex(c=>c.id===editCardId);
-    if(idx>-1) Object.assign(cards[idx],{name,days,price,status});
-    showToast('体验卡已更新');
-  }
-  closeModal();
-  renderCardsTable();
-}
-function toggleCardStatus(id){
-  const c=DATA[curLevel].cards.find(x=>x.id===id);
-  if(!c) return;
-  const isOn=c.status===1;
-  showConfirm((isOn?'禁用':'启用')+'体验卡',
-    (isOn?'确定禁用':'确定启用')+'「'+c.name+'」？',
-    ()=>{
-      c.status=isOn?0:1;
-      renderCardsTable();
-      showToast(c.status===1?'已启用':'已禁用');
-    },isOn);
-}
-function deleteCard(id){
-  const c=DATA[curLevel].cards.find(x=>x.id===id);
-  if(!c) return;
-  showConfirm('删除体验卡',
-    '确定删除「'+c.name+'」？此操作不可恢复！',
-    ()=>{
-      const cards=DATA[curLevel].cards;
-      const idx=cards.findIndex(x=>x.id===id);
-      if(idx>-1) cards.splice(idx,1);
-      if((pageNum-1)*pageSize>=cards.length&&pageNum>1) pageNum--;
-      renderCardsTable();
-      showToast('已删除');
-    },true);
-}
 
 // ===== FORM HELPERS =====
 function toggleLvSw(el){
@@ -829,13 +653,6 @@ function toggleLvSw(el){
   const inp=document.getElementById('lv-status-val');
   if(sw.classList.contains('on')){ sw.classList.remove('on'); lbl.textContent='已禁用'; inp.value='0'; }
   else { sw.classList.add('on'); lbl.textContent='已启用'; inp.value='1'; }
-}
-function toggleSw(el){
-  const track=el.querySelector('.sw-track');
-  const lbl=el.querySelector('.sw-label');
-  const inp=document.getElementById('f-status');
-  if(track.classList.contains('on')){ track.classList.remove('on'); lbl.textContent='已禁用'; inp.value='0'; }
-  else { track.classList.add('on'); lbl.textContent='已启用'; inp.value='1'; }
 }
 
 // ===== CONFIRM MODAL =====

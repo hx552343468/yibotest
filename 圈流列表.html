@@ -52,6 +52,7 @@
 
     /* ===== Card ===== */
     .card{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:18px;}
+    .card-head{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;}
     .card-title{font-size:14px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px;}
     .card-title-bar{width:4px;height:16px;background:#1890ff;border-radius:2px;display:inline-block;}
 
@@ -59,8 +60,27 @@
     .filter-area{padding:20px 20px 0;}
     .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 20px;margin-bottom:14px;}
     .filter-extra{overflow:hidden;max-height:0;margin-bottom:0;transition:max-height .3s ease,margin .3s ease;}
-    .filter-extra.open{max-height:100px;margin-bottom:14px;}
+    .filter-extra.open{max-height:200px;margin-bottom:14px;}
     .filter-item{display:flex;flex-direction:column;gap:5px;}
+    .filter-item-wide{grid-column:span 2;}
+    /* ===== Cascader ===== */
+    .cascader-wrap{position:relative;}
+    .cascader-trigger{display:flex;align-items:center;justify-content:space-between;border:1px solid #d9d9d9;border-radius:4px;padding:0 11px;height:32px;font-size:13px;cursor:pointer;background:#fff;transition:all .25s;user-select:none;}
+    .cascader-trigger:hover{border-color:#1890ff;}
+    .cascader-trigger.active{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.15);}
+    .cascader-trigger-text{color:#bbb;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .cascader-trigger-text.selected{color:#333;}
+    .cascader-arr{font-size:10px;color:#aaa;margin-left:6px;transition:transform .2s;flex-shrink:0;}
+    .cascader-trigger.active .cascader-arr{transform:rotate(180deg);}
+    .cascader-dropdown{position:absolute;top:calc(100% + 4px);left:0;z-index:500;background:#fff;border:1px solid #e8e8e8;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.12);display:none;min-width:360px;}
+    .cascader-dropdown.show{display:flex;}
+    .cascader-col{width:120px;border-right:1px solid #f0f0f0;max-height:220px;overflow-y:auto;flex-shrink:0;}
+    .cascader-col:last-child{border-right:none;}
+    .cascader-col-hd{padding:7px 12px;font-size:12px;color:#aaa;background:#fafafa;border-bottom:1px solid #f0f0f0;font-weight:500;}
+    .cascader-empty{padding:24px 12px;text-align:center;font-size:12px;color:#c0c4cc;}
+    .cascader-option{padding:8px 12px;font-size:13px;color:#333;cursor:pointer;transition:background .15s;}
+    .cascader-option:hover{background:#f0f7ff;color:#1890ff;}
+    .cascader-option.active{color:#1890ff;font-weight:500;background:#e6f4ff;}
     .filter-item label{font-size:13px;color:#555;font-weight:500;white-space:nowrap;}
     .filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 0;border-top:1px solid #f5f5f5;}
     .filter-toggle{background:none;border:none;color:#1890ff;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:4px;padding:0 4px;font-family:inherit;transition:color .2s;}
@@ -154,6 +174,13 @@
     /* ===== Notice ===== */
     .notice{background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 16px;font-size:13px;color:#614700;margin:0 20px 16px;display:flex;align-items:center;gap:8px;}
     .notice-icon{color:#faad14;font-size:15px;flex-shrink:0;}
+    /* ===== Help tooltip ===== */
+    .help-wrap{position:relative;display:inline-flex;align-items:center;}
+    .help-btn{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#d9d9d9;color:#555;font-size:11px;cursor:default;border:none;font-family:inherit;transition:all .2s;line-height:1;font-weight:600;}
+    .help-btn:hover{background:#faad14;color:#fff;}
+    .help-popover{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);z-index:200;background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:10px 14px;font-size:13px;color:#555;line-height:1.7;box-shadow:0 4px 16px rgba(0,0,0,.12);width:280px;display:block;opacity:0;pointer-events:none;transition:opacity .15s;font-weight:400;white-space:normal;}
+    .help-wrap:hover .help-popover{opacity:1;pointer-events:auto;}
+    .help-popover::after{content:'';position:absolute;left:-5px;top:50%;transform:translateY(-50%) rotate(45deg);width:8px;height:8px;background:#fff;border-left:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8;}
 
     /* ===== Table ===== */
     .tbl-wrap{overflow-x:auto;padding:0 20px 4px;}
@@ -212,7 +239,8 @@
         <div class="sub-item" onclick="setActive(this)">开户统计</div>
         <div class="sub-item" onclick="setActive(this)">代理列表</div>
         <div class="sub-item" onclick="setActive(this)">代理开户数</div>
-        <a href="代理商级别管理.html" class="sub-item" style="text-decoration:none;">代理商级别管理</a>
+        <a href="index.html" class="sub-item" style="text-decoration:none;">代理商级别管理</a>
+        <a href="体验卡管理.html" class="sub-item" style="text-decoration:none;">体验卡管理</a>
       </div>
     </div>
 
@@ -312,6 +340,15 @@
     <!-- Content -->
     <div class="content">
       <div class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <span class="card-title-bar"></span>圈流列表
+            <div class="help-wrap">
+              <button class="help-btn">?</button>
+              <div class="help-popover">温馨提示：当前列表数据为学员二维码扫描注册，用户进行试听后，会进入学员列表</div>
+            </div>
+          </div>
+        </div>
 
         <!-- ===== 筛选区域 ===== -->
         <div class="filter-area">
@@ -347,6 +384,29 @@
           <!-- 第二行：可收起 -->
           <div class="filter-grid filter-extra" id="filter-extra">
             <div class="filter-item">
+              <label>地区</label>
+              <div class="cascader-wrap" id="cascader-wrap">
+                <div class="cascader-trigger" id="cascader-trigger" onclick="toggleCascader(event)">
+                  <span class="cascader-trigger-text" id="cascader-text">请选择省/市/区</span>
+                  <span class="cascader-arr">&#9660;</span>
+                </div>
+                <div class="cascader-dropdown" id="cascader-dropdown">
+                  <div class="cascader-col">
+                    <div class="cascader-col-hd">省</div>
+                    <div class="cascader-empty">暂无数据</div>
+                  </div>
+                  <div class="cascader-col">
+                    <div class="cascader-col-hd">市</div>
+                    <div class="cascader-empty">请先选择省</div>
+                  </div>
+                  <div class="cascader-col">
+                    <div class="cascader-col-hd">区/县</div>
+                    <div class="cascader-empty">请先选择市</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="filter-item">
               <label>是否缴费</label>
               <select class="sel" id="f-paid">
                 <option value="">请选择状态</option>
@@ -372,6 +432,26 @@
                 <option value="放弃">放弃</option>
               </select>
             </div>
+            <div class="filter-item">
+              <label>代理商</label>
+              <select class="sel" id="f-agent">
+                <option value="">请选择级别</option>
+                <option value="总代">总代</option>
+                <option value="省代">省代</option>
+                <option value="市代">市代</option>
+                <option value="区代">区代</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>推荐人代理商</label>
+              <select class="sel" id="f-ref-agent">
+                <option value="">请选择级别</option>
+                <option value="总代">总代</option>
+                <option value="省代">省代</option>
+                <option value="市代">市代</option>
+                <option value="区代">区代</option>
+              </select>
+            </div>
           </div>
           <!-- 操作栏 -->
           <div class="filter-actions">
@@ -383,12 +463,6 @@
           </div>
         </div>
 
-        <!-- ===== 提示 ===== -->
-        <div class="notice">
-          <span class="notice-icon">⚠</span>
-          温馨提示：当前列表数据为学员二维码扫描注册，用户进行试听后，会进入学员列表
-        </div>
-
         <!-- ===== 表格 ===== -->
         <div class="tbl-wrap">
           <table>
@@ -398,12 +472,14 @@
                 <th class="col-avatar">头像</th>
                 <th>姓名</th>
                 <th>手机号码</th>
+                <th>代理商</th>
                 <th>地区</th>
                 <th>是否试学</th>
                 <th>是否缴费</th>
                 <th>是否开户</th>
                 <th>推荐人</th>
                 <th>推荐人手机号码</th>
+                <th>推荐人代理商</th>
                 <th>跟进状态</th>
                 <th>注册时间</th>
                 <th class="col-ops">操作</th>
@@ -535,26 +611,42 @@
 <script>
 // ===== 样本数据 =====
 const ALL_DATA = [
-  {name:'刘梦欣',phone:'15849649354',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
-  {name:'汪垂崎',phone:'15592656070',area:'山西省·晋城市·城区',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
-  {name:'郭骏泽',phone:'15835607267',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
-  {name:'郑奉睿',phone:'15235603506',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
-  {name:'刘弘睿',phone:'15903565217',area:'山西省·昌城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
-  {name:'赵晓涵',phone:'13812345670',area:'山西省·太原市·小店区',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-20 14:22:31'},
-  {name:'陈建国',phone:'13956781234',area:'山西省·长治市·上党区',trial:0,paid:0,account:0,referrer:'李明',refPhone:'15623456789',regTime:'2026-09-20 10:15:44'},
-  {name:'张雨萱',phone:'15601234567',area:'山西省·运城市·盐湖区',trial:1,paid:1,account:0,referrer:'张鑫',refPhone:'13756789012',regTime:'2026-09-19 16:38:02'},
-  {name:'王子豪',phone:'13700987654',area:'山西省·大同市·云冈区',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-19 09:44:17'},
-  {name:'李依依',phone:'15934561234',area:'山西省·晋城市·高平市',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-18 11:20:55'},
-  {name:'孙鸿飞',phone:'13611223344',area:'山西省·晋城市·城区',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-18 08:05:30'},
-  {name:'周美琪',phone:'15788889999',area:'山西省·太原市·杏花岭区',trial:1,paid:1,account:1,referrer:'李明',refPhone:'15623456789',regTime:'2026-09-17 15:30:00'},
-  {name:'吴嘉轩',phone:'13923456781',area:'山西省·运城市·永济市',trial:1,paid:0,account:0,referrer:'张鑫',refPhone:'13756789012',regTime:'2026-09-17 09:12:40'},
-  {name:'冯雪峰',phone:'15012345678',area:'山西省·吕梁市·离石区',trial:0,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-16 13:55:18'},
-  {name:'蒋小云',phone:'13834561234',area:'山西省·晋中市·榆次区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-16 08:40:22'},
+  {name:'刘梦欣',phone:'15849649354',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'汪垂崎',phone:'15592656070',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'郭骏泽',phone:'15835607267',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'郑奉睿',phone:'15235603506',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'刘弘睿',phone:'15903565217',area:'山西省·昌城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'赵晓涵',phone:'13812345670',area:'山西省·太原市·小店区',agent:'市代',agentName:'太原明锐培训',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-20 14:22:31'},
+  {name:'陈建国',phone:'13956781234',area:'山西省·长治市·上党区',agent:'市代',agentName:'长治云峰教育',trial:0,paid:0,account:0,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-20 10:15:44'},
+  {name:'张雨萱',phone:'15601234567',area:'山西省·运城市·盐湖区',agent:'区代',agentName:'运城鑫达培训',trial:1,paid:1,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-19 16:38:02'},
+  {name:'王子豪',phone:'13700987654',area:'山西省·大同市·云冈区',agent:'市代',agentName:'太原明锐培训',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-19 09:44:17'},
+  {name:'李依依',phone:'15934561234',area:'山西省·晋城市·高平市',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 11:20:55'},
+  {name:'孙鸿飞',phone:'13611223344',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 08:05:30'},
+  {name:'周美琪',phone:'15788889999',area:'山西省·太原市·杏花岭区',agent:'市代',agentName:'长治云峰教育',trial:1,paid:1,account:1,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-17 15:30:00'},
+  {name:'吴嘉轩',phone:'13923456781',area:'山西省·运城市·永济市',agent:'区代',agentName:'运城鑫达培训',trial:1,paid:0,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-17 09:12:40'},
+  {name:'冯雪峰',phone:'15012345678',area:'山西省·吕梁市·离石区',agent:'市代',agentName:'太原明锐培训',trial:0,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-16 13:55:18'},
+  {name:'蒋小云',phone:'13834561234',area:'山西省·晋中市·榆次区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-16 08:40:22'},
 ];
 
 let filteredData = [...ALL_DATA];
 let pageNum = 1;
 let pageSize = 10;
+
+// ===== 级联选择器 =====
+let _cascaderVal = '';
+function toggleCascader(e){
+  e.stopPropagation();
+  const dd = document.getElementById('cascader-dropdown');
+  const trigger = document.getElementById('cascader-trigger');
+  const show = dd.classList.toggle('show');
+  trigger.classList.toggle('active', show);
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('#cascader-wrap')){
+    document.getElementById('cascader-dropdown').classList.remove('show');
+    document.getElementById('cascader-trigger').classList.remove('active');
+  }
+});
 
 // ===== 侧边栏 =====
 function toggleNav(el){ el.classList.toggle('open'); }
@@ -582,6 +674,8 @@ function doSearch(){
   const paid = document.getElementById('f-paid').value;
   const account = document.getElementById('f-account').value;
   const followStatus = document.getElementById('f-follow-status').value;
+  const agent = document.getElementById('f-agent').value;
+  const refAgent = document.getElementById('f-ref-agent').value;
 
   filteredData = ALL_DATA.filter(d=>{
     if(name && !d.name.toLowerCase().includes(name)) return false;
@@ -591,6 +685,9 @@ function doSearch(){
     if(paid !== '' && d.paid !== parseInt(paid)) return false;
     if(account !== '' && d.account !== parseInt(account)) return false;
     if(followStatus && (d.followStatus||'待跟进') !== followStatus) return false;
+    if(_cascaderVal && !d.area.includes(_cascaderVal)) return false;
+    if(agent && d.agent !== agent) return false;
+    if(refAgent && d.refAgent !== refAgent) return false;
     return true;
   });
   pageNum = 1;
@@ -605,6 +702,11 @@ function doReset(){
   document.getElementById('f-paid').value='';
   document.getElementById('f-account').value='';
   document.getElementById('f-follow-status').value='';
+  _cascaderVal='';
+  document.getElementById('cascader-text').textContent='请选择省/市/区';
+  document.getElementById('cascader-text').classList.remove('selected');
+  document.getElementById('f-agent').value='';
+  document.getElementById('f-ref-agent').value='';
   filteredData = [...ALL_DATA];
   pageNum = 1;
   render();
@@ -645,12 +747,14 @@ function render(){
       <td class="col-avatar">${avatarSvg()}</td>
       <td style="font-weight:500;">${d.name}</td>
       <td>${d.phone}</td>
+      <td><div style="font-size:13px;color:#333;">${d.agent||'—'}</div>${d.agentName?`<div style="font-size:12px;color:#999;margin-top:2px;">${d.agentName}</div>`:''}</td>
       <td style="color:#666;">${d.area}</td>
       <td>${yesNo(d.trial)}</td>
       <td>${yesNo(d.paid)}</td>
       <td>${yesNo(d.account)}</td>
       <td>${d.referrer}</td>
       <td style="color:#666;">${d.refPhone}</td>
+      <td><div style="font-size:13px;color:#333;">${d.refAgent||'—'}</div>${d.referrer?`<div style="font-size:12px;color:#999;margin-top:2px;">${d.referrer}</div>`:''}</td>
       <td>${followStatusBadge(d.followStatus)}</td>
       <td style="color:#999;white-space:nowrap;">${d.regTime}</td>
       <td class="col-ops"><button class="btn-link" onclick="openFollowModal('${d.phone}')">跟进记录</button></td>
