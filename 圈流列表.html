@@ -611,21 +611,21 @@
 <script>
 // ===== 样本数据 =====
 const ALL_DATA = [
-  {name:'刘梦欣',phone:'15849649354',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
-  {name:'汪垂崎',phone:'15592656070',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
-  {name:'郭骏泽',phone:'15835607267',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
-  {name:'郑奉睿',phone:'15235603506',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
-  {name:'刘弘睿',phone:'15903565217',area:'山西省·昌城市·城区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
-  {name:'赵晓涵',phone:'13812345670',area:'山西省·太原市·小店区',agent:'市代',agentName:'太原明锐培训',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-20 14:22:31'},
-  {name:'陈建国',phone:'13956781234',area:'山西省·长治市·上党区',agent:'市代',agentName:'长治云峰教育',trial:0,paid:0,account:0,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-20 10:15:44'},
-  {name:'张雨萱',phone:'15601234567',area:'山西省·运城市·盐湖区',agent:'区代',agentName:'运城鑫达培训',trial:1,paid:1,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-19 16:38:02'},
-  {name:'王子豪',phone:'13700987654',area:'山西省·大同市·云冈区',agent:'市代',agentName:'太原明锐培训',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-19 09:44:17'},
-  {name:'李依依',phone:'15934561234',area:'山西省·晋城市·高平市',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 11:20:55'},
-  {name:'孙鸿飞',phone:'13611223344',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋城博云教育',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 08:05:30'},
-  {name:'周美琪',phone:'15788889999',area:'山西省·太原市·杏花岭区',agent:'市代',agentName:'长治云峰教育',trial:1,paid:1,account:1,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-17 15:30:00'},
-  {name:'吴嘉轩',phone:'13923456781',area:'山西省·运城市·永济市',agent:'区代',agentName:'运城鑫达培训',trial:1,paid:0,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-17 09:12:40'},
-  {name:'冯雪峰',phone:'15012345678',area:'山西省·吕梁市·离石区',agent:'市代',agentName:'太原明锐培训',trial:0,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-16 13:55:18'},
-  {name:'蒋小云',phone:'13834561234',area:'山西省·晋中市·榆次区',agent:'省代',agentName:'晋城博云教育',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-16 08:40:22'},
+  {name:'刘梦欣',phone:'15849649354',area:'山西省·晋城市·城区',agent:'省代',agentName:'王磊',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'汪垂崎',phone:'15592656070',area:'山西省·晋城市·城区',agent:'-',agentName:'-',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'郭骏泽',phone:'15835607267',area:'山西省·晋城市·城区',agent:'省代',agentName:'王磊',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'郑奉睿',phone:'15235603506',area:'山西省·晋城市·城区',agent:'省代',agentName:'王磊',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'刘弘睿',phone:'15903565217',area:'山西省·昌城市·城区',agent:'省代',agentName:'王磊',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-21 08:50:08'},
+  {name:'赵晓涵',phone:'13812345670',area:'山西省·太原市·小店区',agent:'市代',agentName:'行三',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-20 14:22:31'},
+  {name:'陈建国',phone:'13956781234',area:'山西省·长治市·上党区',agent:'-',agentName:'-',trial:0,paid:0,account:0,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-20 10:15:44'},
+  {name:'张雨萱',phone:'15601234567',area:'山西省·运城市·盐湖区',agent:'区代',agentName:'李居明',trial:1,paid:1,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-19 16:38:02'},
+  {name:'王子豪',phone:'13700987654',area:'山西省·大同市·云冈区',agent:'市代',agentName:'李居明',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-19 09:44:17'},
+  {name:'李依依',phone:'15934561234',area:'山西省·晋城市·高平市',agent:'省代',agentName:'李居明',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 11:20:55'},
+  {name:'孙鸿飞',phone:'13611223344',area:'山西省·晋城市·城区',agent:'省代',agentName:'晋张武',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-18 08:05:30'},
+  {name:'周美琪',phone:'15788889999',area:'山西省·太原市·杏花岭区',agent:'市代',agentName:'张武',trial:1,paid:1,account:1,referrer:'李明',refPhone:'15623456789',refAgent:'省代',regTime:'2026-09-17 15:30:00'},
+  {name:'吴嘉轩',phone:'13923456781',area:'山西省·运城市·永济市',agent:'区代',agentName:'张武',trial:1,paid:0,account:0,referrer:'张鑫',refPhone:'13756789012',refAgent:'市代',regTime:'2026-09-17 09:12:40'},
+  {name:'冯雪峰',phone:'15012345678',area:'山西省·吕梁市·离石区',agent:'市代',agentName:'贾樟柯',trial:0,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',refAgent:'省代',regTime:'2026-09-16 13:55:18'},
+  {name:'蒋小云',phone:'13834561234',area:'山西省·晋中市·榆次区',agent:'省代',agentName:'贾樟柯',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',refAgent:'总代',regTime:'2026-09-16 08:40:22'},
 ];
 
 let filteredData = [...ALL_DATA];

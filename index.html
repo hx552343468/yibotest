@@ -99,13 +99,16 @@
     /* ===== Level filter bar ===== */
     .level-filter{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
     /* ===== Card picker ===== */
-    .card-pick-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;padding:2px 0;}
-    .card-pick-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #f0f0f0;border-radius:6px;cursor:pointer;transition:all .15s;user-select:none;}
-    .card-pick-item:hover{background:#f0f7ff;border-color:#91caff;}
-    .card-pick-item.checked{border-color:#1890ff;background:#e6f4ff;}
-    .card-pick-item input[type=checkbox]{width:16px;height:16px;accent-color:#1890ff;flex-shrink:0;cursor:pointer;}
-    .pick-card-name{font-size:13px;color:#333;font-weight:500;flex:1;}
-    .pick-card-meta{font-size:12px;color:#999;white-space:nowrap;}
+    .card-pick-list{border:1px solid #f0f0f0;border-radius:6px;overflow:hidden;max-height:360px;overflow-y:auto;}
+    .card-pick-hdr{display:grid;grid-template-columns:32px 1fr 80px 90px 90px;align-items:center;gap:0;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;font-size:12px;color:#999;font-weight:500;}
+    .card-pick-item{display:grid;grid-template-columns:32px 1fr 80px 90px 90px;align-items:center;gap:0;padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .15s;user-select:none;}
+    .card-pick-item:last-child{border-bottom:none;}
+    .card-pick-item:hover{background:#f0f7ff;}
+    .card-pick-item.checked{background:#e6f4ff;}
+    .card-pick-item input[type=checkbox]{width:15px;height:15px;accent-color:#1890ff;cursor:pointer;justify-self:center;}
+    .pick-card-name{font-size:13px;color:#333;font-weight:500;}
+    .pick-card-cell{font-size:13px;color:#555;text-align:right;}
+    .pick-card-discount{font-size:13px;color:#ff4d4f;font-weight:600;text-align:right;}
 
     /* ===== Buttons ===== */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 16px;border-radius:4px;font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .2s;line-height:1.4;white-space:nowrap;font-family:inherit;}
@@ -426,7 +429,7 @@
       <span class="modal-x" onclick="closeCardPicker()">✕</span>
     </div>
     <div class="modal-body" style="padding:16px 22px;">
-      <p style="font-size:12px;color:#999;margin-bottom:12px;">从体验卡管理中选择适用于该级别的体验卡</p>
+        <p style="font-size:12px;color:#999;margin:0 0 10px;">勾选适用于该级别的体验卡，折后价按级别折扣自动计算</p>
       <div class="card-pick-list" id="card-pick-list"></div>
     </div>
     <div class="modal-foot">
@@ -521,13 +524,19 @@ function openCardPicker(idx){
   const d=DATA[idx];
   document.getElementById('picker-title').textContent='体验卡配置 — '+d.name;
   const list=document.getElementById('card-pick-list');
-  list.innerHTML=CARDS.map(c=>{
+  const disc=d.discount;
+  list.innerHTML=`<div class="card-pick-hdr">
+    <span></span><span>卡名称</span><span style="text-align:right;">有效天数</span><span style="text-align:right;">原价（元）</span><span style="text-align:right;">折后价（元）</span>
+  </div>`+CARDS.map(c=>{
     const checked=d.selectedCards.includes(c.id);
-    return `<label class="card-pick-item${checked?' checked':''}" onclick="togglePickItem(this)">
+    const discPrice=(c.price*disc/100).toFixed(2);
+    return `<div class="card-pick-item${checked?' checked':''}" onclick="togglePickItem(this)">
       <input type="checkbox" value="${c.id}"${checked?' checked':''} onclick="event.stopPropagation();togglePickItem(this.closest('.card-pick-item'))" />
       <span class="pick-card-name">${c.name}</span>
-      <span class="pick-card-meta">${c.days} 天 &nbsp;¥${Number(c.price).toFixed(2)}</span>
-    </label>`;
+      <span class="pick-card-cell">${c.days} 天</span>
+      <span class="pick-card-cell">¥${Number(c.price).toFixed(2)}</span>
+      <span class="pick-card-discount">¥${discPrice}</span>
+    </div>`;
   }).join('');
   document.getElementById('picker-bg').classList.add('show');
 }
