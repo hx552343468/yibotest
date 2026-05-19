@@ -105,6 +105,8 @@
     .btn-default:hover{color:#1890ff;border-color:#1890ff;}
     .btn-danger-ghost{background:#fff;color:#ff4d4f;border-color:#ff4d4f;}
     .btn-danger-ghost:hover{background:#fff1f0;}
+    .btn-danger{background:#ff4d4f;color:#fff;border-color:#ff4d4f;}
+    .btn-danger:hover{background:#ff7875;border-color:#ff7875;}
     .btn-sm{padding:4px 12px;font-size:12px;}
     .btn-link{background:none;border:none;color:#1890ff;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit;}
     .btn-link:hover{color:#40a9ff;}
@@ -211,7 +213,7 @@
       </div>
       <div class="sub-nav">
         <div class="sub-item" onclick="setActive(this)">学员列表</div>
-        <div class="sub-item" onclick="setActive(this)">学员统计</div>
+        <a href="圈流列表.html" class="sub-item" style="text-decoration:none;">圈流列表</a>
       </div>
     </div>
 
@@ -526,6 +528,23 @@
   </div>
 </div>
 
+<!-- ===== CONFIRM MODAL ===== -->
+<div class="modal-bg" id="confirm-modal-bg" onclick="confirmBgClose(event)">
+  <div class="modal" style="width:380px;">
+    <div class="modal-head">
+      <span class="modal-title" id="confirm-title">确认操作</span>
+      <span class="modal-x" onclick="closeConfirm()">✕</span>
+    </div>
+    <div class="modal-body" style="padding:20px 22px 16px;">
+      <p id="confirm-msg" style="font-size:14px;color:#333;margin:0;line-height:1.7;"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-primary" id="confirm-ok-btn" onclick="confirmOk()">确定</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== DATA =====
 const DATA = [
@@ -615,16 +634,24 @@ function renderLevelList(){
   }).join('');
 }
 function toggleLevelStatus(idx){
-  DATA[idx].status=DATA[idx].status===1?0:1;
-  renderLevelList();
-  showToast(DATA[idx].status===1?'级别已启用':'级别已禁用');
+  const isOn=DATA[idx].status===1;
+  showConfirm((isOn?'禁用':'启用')+'级别',
+    (isOn?'确定禁用':'确定启用')+'「'+DATA[idx].name+'」级别？',
+    ()=>{
+      DATA[idx].status=isOn?0:1;
+      renderLevelList();
+      showToast(DATA[idx].status===1?'级别已启用':'级别已禁用');
+    },isOn);
 }
 function deleteLevel(idx){
-  if(!confirm('确定删除「'+DATA[idx].name+'」级别？此操作不可恢复！')) return;
-  if(curLevel===idx&&document.getElementById('view-cards').style.display!=='none') showLevelList();
-  DATA.splice(idx,1);
-  renderLevelList();
-  showToast('级别已删除');
+  showConfirm('删除级别',
+    '确定删除「'+DATA[idx].name+'」级别？此操作不可恢复！',
+    ()=>{
+      if(curLevel===idx&&document.getElementById('view-cards').style.display!=='none') showLevelList();
+      DATA.splice(idx,1);
+      renderLevelList();
+      showToast('级别已删除');
+    },true);
 }
 
 // ===== LEVEL MODAL (新增/编辑) =====
@@ -739,7 +766,6 @@ function openCardModal(id=null){
     document.getElementById('f-name').value=c.name;
     document.getElementById('f-days').value=c.days;
     document.getElementById('f-price').value=c.price;
-    updateAgentPrice();
     if(c.status===1){ track.classList.add('on'); document.getElementById('sw-text').textContent='已启用'; document.getElementById('f-status').value='1'; }
     else { track.classList.remove('on'); document.getElementById('sw-text').textContent='已禁用'; document.getElementById('f-status').value='0'; }
   }
@@ -772,18 +798,28 @@ function saveCard(){
 function toggleCardStatus(id){
   const c=DATA[curLevel].cards.find(x=>x.id===id);
   if(!c) return;
-  c.status=c.status===1?0:1;
-  renderCardsTable();
-  showToast(c.status===1?'已启用':'已禁用');
+  const isOn=c.status===1;
+  showConfirm((isOn?'禁用':'启用')+'体验卡',
+    (isOn?'确定禁用':'确定启用')+'「'+c.name+'」？',
+    ()=>{
+      c.status=isOn?0:1;
+      renderCardsTable();
+      showToast(c.status===1?'已启用':'已禁用');
+    },isOn);
 }
 function deleteCard(id){
-  if(!confirm('确定删除该体验卡配置吗？')) return;
-  const cards=DATA[curLevel].cards;
-  const idx=cards.findIndex(c=>c.id===id);
-  if(idx>-1) cards.splice(idx,1);
-  if((pageNum-1)*pageSize>=cards.length&&pageNum>1) pageNum--;
-  renderCardsTable();
-  showToast('已删除');
+  const c=DATA[curLevel].cards.find(x=>x.id===id);
+  if(!c) return;
+  showConfirm('删除体验卡',
+    '确定删除「'+c.name+'」？此操作不可恢复！',
+    ()=>{
+      const cards=DATA[curLevel].cards;
+      const idx=cards.findIndex(x=>x.id===id);
+      if(idx>-1) cards.splice(idx,1);
+      if((pageNum-1)*pageSize>=cards.length&&pageNum>1) pageNum--;
+      renderCardsTable();
+      showToast('已删除');
+    },true);
 }
 
 // ===== FORM HELPERS =====
@@ -801,6 +837,19 @@ function toggleSw(el){
   if(track.classList.contains('on')){ track.classList.remove('on'); lbl.textContent='已禁用'; inp.value='0'; }
   else { track.classList.add('on'); lbl.textContent='已启用'; inp.value='1'; }
 }
+
+// ===== CONFIRM MODAL =====
+let confirmCallback=null;
+function showConfirm(title,msg,onOk,danger=false){
+  confirmCallback=onOk;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-ok-btn').className='btn '+(danger?'btn-danger':'btn-primary');
+  document.getElementById('confirm-modal-bg').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirm-modal-bg').classList.remove('show'); confirmCallback=null; }
+function confirmOk(){ const cb=confirmCallback; closeConfirm(); if(cb) cb(); }
+function confirmBgClose(e){ if(e.target===document.getElementById('confirm-modal-bg')) closeConfirm(); }
 
 // ===== TOAST =====
 function showToast(msg){

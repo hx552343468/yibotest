@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>博云志学点点总后台 - 圈流列表</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;font-size:14px;}
+
+    /* ===== Layout ===== */
+    .layout{display:flex;height:100vh;overflow:hidden;}
+
+    /* ===== Sidebar ===== */
+    .sidebar{width:210px;background:#1b2132;color:#c8cdd8;flex-shrink:0;overflow-y:auto;display:flex;flex-direction:column;}
+    .sidebar::-webkit-scrollbar{width:4px;}
+    .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+    .logo{padding:14px 16px;font-size:13px;font-weight:700;color:#fff;background:#151c2e;border-bottom:1px solid rgba(255,255,255,.07);letter-spacing:.5px;white-space:nowrap;}
+    .nav-group{border-bottom:1px solid rgba(255,255,255,.05);}
+    .nav-parent{display:flex;align-items:center;padding:11px 16px;cursor:pointer;transition:background .2s;user-select:none;}
+    .nav-parent:hover{background:rgba(255,255,255,.05);}
+    .nav-parent.open{color:#fff;}
+    .nav-icon{width:16px;height:16px;margin-right:9px;opacity:.65;flex-shrink:0;}
+    .nav-label{flex:1;font-size:13px;}
+    .nav-arrow{font-size:10px;transition:transform .25s;margin-left:4px;opacity:.55;}
+    .nav-parent.open .nav-arrow{transform:rotate(180deg);}
+    .sub-nav{display:none;background:rgba(0,0,0,.18);}
+    .nav-parent.open+.sub-nav{display:block;}
+    .sub-item{display:flex;align-items:center;padding:9px 16px 9px 42px;font-size:13px;color:#9ca3b0;cursor:pointer;transition:all .2s;position:relative;}
+    .sub-item:hover{color:#e0e4ef;background:rgba(255,255,255,.04);}
+    .sub-item.active{color:#1890ff;background:rgba(24,144,255,.12);}
+    .sub-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#1890ff;border-radius:0 2px 2px 0;}
+    a.sub-item{text-decoration:none;}
+
+    /* ===== Main ===== */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+    /* ===== Header ===== */
+    .header{height:54px;background:#fff;display:flex;align-items:center;padding:0 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);z-index:20;flex-shrink:0;}
+    .header-collapse{font-size:17px;color:#666;cursor:pointer;margin-right:12px;}
+    .header-breadcrumb{font-size:13px;color:#999;flex:1;}
+    .header-breadcrumb span{color:#1890ff;}
+    .h-icons{display:flex;align-items:center;gap:14px;margin-left:12px;}
+    .h-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#666;cursor:pointer;font-size:15px;border-radius:4px;transition:background .2s;}
+    .h-icon:hover{background:#f5f5f5;color:#1890ff;}
+    .avatar-hd{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1890ff,#36cfc9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;margin-left:4px;}
+
+    /* ===== Content ===== */
+    .content{flex:1;overflow-y:auto;padding:20px 24px;}
+    .content::-webkit-scrollbar{width:6px;}
+    .content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px;}
+
+    /* ===== Card ===== */
+    .card{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:18px;}
+    .card-title{font-size:14px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px;}
+    .card-title-bar{width:4px;height:16px;background:#1890ff;border-radius:2px;display:inline-block;}
+
+    /* ===== Filter area ===== */
+    .filter-area{padding:20px 20px 0;}
+    .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 20px;margin-bottom:14px;}
+    .filter-extra{overflow:hidden;max-height:0;margin-bottom:0;transition:max-height .3s ease,margin .3s ease;}
+    .filter-extra.open{max-height:100px;margin-bottom:14px;}
+    .filter-item{display:flex;flex-direction:column;gap:5px;}
+    .filter-item label{font-size:13px;color:#555;font-weight:500;white-space:nowrap;}
+    .filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 0;border-top:1px solid #f5f5f5;}
+    .filter-toggle{background:none;border:none;color:#1890ff;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:4px;padding:0 4px;font-family:inherit;transition:color .2s;}
+    .filter-toggle:hover{color:#40a9ff;}
+    .filter-toggle .arr{display:inline-block;transition:transform .3s;font-size:11px;}
+    .filter-toggle.open .arr{transform:rotate(180deg);}
+    .inp{border:1px solid #d9d9d9;border-radius:4px;padding:7px 11px;font-size:13px;outline:none;transition:all .25s;background:#fff;height:32px;width:100%;}
+    .inp:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.15);}
+    .sel{border:1px solid #d9d9d9;border-radius:4px;padding:0 28px 0 11px;font-size:13px;outline:none;background:#fff;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;height:32px;width:100%;}
+    .sel:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.15);}
+
+    /* ===== Buttons ===== */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 16px;height:32px;border-radius:4px;font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .2s;line-height:1;white-space:nowrap;font-family:inherit;}
+    .btn-primary{background:#1890ff;color:#fff;border-color:#1890ff;}
+    .btn-primary:hover{background:#40a9ff;border-color:#40a9ff;}
+    .btn-default{background:#fff;color:#333;border-color:#d9d9d9;}
+    .btn-default:hover{color:#1890ff;border-color:#1890ff;}
+    .btn-link{background:none;border:none;color:#1890ff;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit;}
+    .btn-link:hover{color:#40a9ff;}
+
+    /* ===== Drawer ===== */
+    .drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;}
+    .drawer-mask.show{display:block;}
+    .drawer{position:fixed;top:0;right:0;width:520px;max-width:100vw;height:100vh;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.15);z-index:601;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);}
+    .drawer-mask.show .drawer{transform:translateX(0);}
+    .drawer-head{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+    .drawer-title{font-size:15px;font-weight:600;}
+    .drawer-x{font-size:18px;color:#aaa;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;line-height:1;}
+    .drawer-x:hover{color:#333;background:#f5f5f5;}
+    .drawer-body{flex:1;overflow-y:auto;padding:20px;background:#f5f7fa;}
+    .drawer-body::-webkit-scrollbar{width:5px;}
+    .drawer-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px;}
+    .drawer-foot{padding:12px 20px;border-top:1px solid #f0f0f0;flex-shrink:0;background:#fff;}
+    /* ===== Info block ===== */
+    .info-block{background:#fff;border-radius:8px;padding:16px 18px;margin-bottom:20px;border:1px solid #f0f0f0;}
+    .info-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:14px;}
+    .info-row-2:last-child{margin-bottom:0;}
+    .info-kv{display:flex;flex-direction:column;gap:4px;}
+    .info-k{font-size:12px;color:#999;}
+    .info-v{font-size:13px;color:#333;font-weight:500;line-height:1.4;}
+    /* ===== Timeline ===== */
+    .tl-wrap{position:relative;padding-left:26px;}
+    .tl-wrap::before{content:'';position:absolute;left:7px;top:10px;bottom:10px;width:2px;background:#e4e6ea;border-radius:1px;}
+    .tl-item{position:relative;padding-bottom:20px;}
+    .tl-item:last-child{padding-bottom:0;}
+    .tl-dot{position:absolute;left:-19px;top:5px;width:12px;height:12px;border-radius:50%;background:#1890ff;border:2px solid #f5f7fa;box-shadow:0 0 0 2px #bae0ff;}
+    .tl-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .tl-del{background:none;border:none;color:#d9d9d9;cursor:pointer;font-size:12px;padding:2px 6px;border-radius:3px;transition:all .2s;font-family:inherit;line-height:1;}
+    .tl-del:hover{color:#ff4d4f;background:#fff1f0;}
+    .tl-time{font-size:12px;color:#999;}
+    .tl-method{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;background:#e6f4ff;color:#1890ff;border:1px solid #91caff;}
+    .tl-card{background:#fff;border:1px solid #ebebeb;border-radius:6px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+    .tl-card-row{display:flex;gap:6px;margin-bottom:5px;font-size:13px;line-height:1.6;}
+    .tl-card-row:last-child{margin-bottom:0;}
+    .tl-card-k{color:#aaa;white-space:nowrap;flex-shrink:0;}
+    .tl-card-v{color:#333;word-break:break-all;}
+    .tl-empty{text-align:center;padding:40px 0;color:#c0c4cc;}
+    .tl-empty-icon{font-size:40px;margin-bottom:10px;}
+    /* ===== Follow status badge ===== */
+    .fs-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;}
+    .fs-wait{background:#f5f5f5;color:#999;border:1px solid #e8e8e8;}
+    .fs-done{background:#e6f4ff;color:#1890ff;border:1px solid #91caff;}
+    .fs-deal{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
+    .fs-drop{background:#fff1f0;color:#ff4d4f;border:1px solid #ffa39e;}
+    /* ===== Add record modal (above drawer) ===== */
+    .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:700;display:none;align-items:center;justify-content:center;}
+    .modal-mask.show{display:flex;}
+    .modal-box{background:#fff;border-radius:8px;width:560px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22);animation:modalIn .2s ease;}
+    @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(-10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .modal-head{padding:16px 22px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+    .modal-title{font-size:15px;font-weight:600;}
+    .modal-x{font-size:18px;color:#aaa;cursor:pointer;line-height:1;padding:2px 4px;border-radius:4px;transition:all .2s;}
+    .modal-x:hover{color:#333;background:#f5f5f5;}
+    .modal-foot{padding:12px 22px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;}
+    /* ===== Shared ===== */
+    .section-hd{font-size:13px;font-weight:600;color:#333;padding:0 0 12px;display:flex;align-items:center;gap:8px;}
+    .section-hd::before{content:'';display:inline-block;width:4px;height:14px;background:#1890ff;border-radius:2px;flex-shrink:0;}
+    .flw-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
+    .flw-field{display:flex;flex-direction:column;gap:5px;}
+    .flw-field label,.flw-label{font-size:13px;color:#444;font-weight:500;display:block;margin-bottom:4px;}
+    .flw-ta{resize:vertical;line-height:1.6;padding:8px 11px;}
+    .pill-group{display:flex;gap:6px;flex-wrap:wrap;}
+    .pill{padding:4px 12px;border-radius:20px;border:1px solid #d9d9d9;background:#fafafa;color:#666;font-size:12px;cursor:pointer;transition:all .2s;font-family:inherit;line-height:1.5;}
+    .pill:hover{border-color:#1890ff;color:#1890ff;background:#f0f7ff;}
+    .pill.active{background:#1890ff;border-color:#1890ff;color:#fff;}
+    .pill-green.active{background:#52c41a;border-color:#52c41a;color:#fff;}
+    .pill-red.active{background:#ff4d4f;border-color:#ff4d4f;color:#fff;}
+    .pill-orange.active{background:#fa8c16;border-color:#fa8c16;color:#fff;}
+    .pill-purple.active{background:#722ed1;border-color:#722ed1;color:#fff;}
+
+    /* ===== Notice ===== */
+    .notice{background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 16px;font-size:13px;color:#614700;margin:0 20px 16px;display:flex;align-items:center;gap:8px;}
+    .notice-icon{color:#faad14;font-size:15px;flex-shrink:0;}
+
+    /* ===== Table ===== */
+    .tbl-wrap{overflow-x:auto;padding:0 20px 4px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:10px 12px;text-align:left;color:#1890ff;font-weight:500;font-size:13px;background:#fafafa;border-bottom:1px solid #f0f0f0;white-space:nowrap;}
+    tbody td{padding:10px 12px;font-size:13px;color:#333;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover td{background:#fafcff;}
+    .col-chk{width:40px;text-align:center;}
+    .col-avatar{width:60px;text-align:center;}
+    .col-ops{width:100px;text-align:center;}
+    thead .col-chk{text-align:center;}
+
+    /* ===== Avatar ===== */
+    .avatar-cell{width:36px;height:36px;border-radius:50%;background:#e8ecf0;display:flex;align-items:center;justify-content:center;margin:0 auto;}
+    .avatar-cell svg{width:20px;height:20px;color:#aaa;}
+
+    /* ===== Yes/No Badge ===== */
+    .badge-yes{display:inline-flex;align-items:center;justify-content:center;background:#52c41a;color:#fff;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:500;min-width:32px;}
+    .badge-no{display:inline-flex;align-items:center;justify-content:center;background:#d9d9d9;color:#666;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:500;min-width:32px;}
+
+    /* ===== Checkbox ===== */
+    input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#1890ff;}
+
+    /* ===== Pagination ===== */
+    .pager-wrap{padding:14px 20px;border-top:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    .pager-total{font-size:13px;color:#666;}
+    .pager{display:flex;align-items:center;gap:4px;}
+    .pg-btn{min-width:30px;height:30px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#333;transition:all .2s;padding:0 8px;}
+    .pg-btn:hover,.pg-btn.active{color:#1890ff;border-color:#1890ff;}
+    .pg-btn.active{background:#e6f4ff;}
+    .pg-btn:disabled{color:#bbb;cursor:not-allowed;border-color:#e8e8e8;}
+    .pg-sel{border:1px solid #d9d9d9;border-radius:4px;padding:3px 6px;font-size:12px;height:30px;outline:none;}
+    .pg-jump{display:flex;align-items:center;gap:6px;font-size:12px;color:#666;}
+    .pg-jump input{width:44px;height:30px;border:1px solid #d9d9d9;border-radius:4px;text-align:center;font-size:12px;outline:none;}
+    .pg-jump input:focus{border-color:#1890ff;}
+
+    /* ===== Responsive ===== */
+    @media(max-width:900px){.sidebar{display:none;}}
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="logo">博云志学点点总后台</div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M5 3V2M11 3V2"/><path d="M1 7h14"/></svg>
+        <span class="nav-label">代理管理</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">开户统计</div>
+        <div class="sub-item" onclick="setActive(this)">代理列表</div>
+        <div class="sub-item" onclick="setActive(this)">代理开户数</div>
+        <a href="代理商级别管理.html" class="sub-item" style="text-decoration:none;">代理商级别管理</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent open" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg>
+        <span class="nav-label">学员管理</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">学员列表</div>
+        <div class="sub-item active">圈流列表</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12 L8 4 L14 12"/><path d="M5 12 L8 8 L11 12"/></svg>
+        <span class="nav-label">数据中心</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">数据概览</div>
+        <div class="sub-item" onclick="setActive(this)">报表导出</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        <span class="nav-label">游戏管理</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">游戏列表</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/></svg>
+        <span class="nav-label">开户订单</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">订单列表</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12v3H2z"/><path d="M2 8h12v6H2z"/><path d="M5 5v3"/><path d="M11 5v3"/></svg>
+        <span class="nav-label">庄园管理</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">庄园列表</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        <span class="nav-label">缴费订单</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">缴费记录</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleNav(this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.8 3.6L14 5.4l-3 2.9.7 4.1L8 10.4l-3.7 2 .7-4.1-3-2.9 4.2-.8z"/></svg>
+        <span class="nav-label">基础配置</span>
+        <span class="nav-arrow">▾</span>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-item" onclick="setActive(this)">基础设置</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+
+    <!-- Header -->
+    <div class="header">
+      <span class="header-collapse">☰</span>
+      <div class="header-breadcrumb">学员管理 &nbsp;/&nbsp; <span>圈流列表</span></div>
+      <div class="h-icons">
+        <div class="h-icon" title="通知">🔔</div>
+        <div class="avatar-hd" title="管理员">管</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="card">
+
+        <!-- ===== 筛选区域 ===== -->
+        <div class="filter-area">
+          <!-- 第一行：始终可见 -->
+          <div class="filter-grid">
+            <div class="filter-item">
+              <label>姓名</label>
+              <input class="inp" id="f-name" placeholder="请输入姓名" />
+            </div>
+            <div class="filter-item">
+              <label>手机号码</label>
+              <input class="inp" id="f-phone" placeholder="请输入手机号码" />
+            </div>
+            <div class="filter-item">
+              <label>推荐人</label>
+              <select class="sel" id="f-referrer">
+                <option value="">请选择电话号码</option>
+                <option value="15838183699">贾贝键 - 15838183699</option>
+                <option value="13912345678">王磊 - 13912345678</option>
+                <option value="15623456789">李明 - 15623456789</option>
+                <option value="13756789012">张鑫 - 13756789012</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>是否试学</label>
+              <select class="sel" id="f-trial">
+                <option value="">请选择状态</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+              </select>
+            </div>
+          </div>
+          <!-- 第二行：可收起 -->
+          <div class="filter-grid filter-extra" id="filter-extra">
+            <div class="filter-item">
+              <label>是否缴费</label>
+              <select class="sel" id="f-paid">
+                <option value="">请选择状态</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>是否开户</label>
+              <select class="sel" id="f-account">
+                <option value="">请选择状态</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>跟进状态</label>
+              <select class="sel" id="f-follow-status">
+                <option value="">请选择状态</option>
+                <option value="待跟进">待跟进</option>
+                <option value="已跟进">已跟进</option>
+                <option value="成交">成交</option>
+                <option value="放弃">放弃</option>
+              </select>
+            </div>
+          </div>
+          <!-- 操作栏 -->
+          <div class="filter-actions">
+            <button class="filter-toggle" id="filter-toggle" onclick="toggleFilter()">
+              展开 <span class="arr">▼</span>
+            </button>
+            <button class="btn btn-default" onclick="doReset()">重置</button>
+            <button class="btn btn-primary" onclick="doSearch()">搜索</button>
+          </div>
+        </div>
+
+        <!-- ===== 提示 ===== -->
+        <div class="notice">
+          <span class="notice-icon">⚠</span>
+          温馨提示：当前列表数据为学员二维码扫描注册，用户进行试听后，会进入学员列表
+        </div>
+
+        <!-- ===== 表格 ===== -->
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-chk"><input type="checkbox" id="chk-all" onchange="toggleAll(this)" /></th>
+                <th class="col-avatar">头像</th>
+                <th>姓名</th>
+                <th>手机号码</th>
+                <th>地区</th>
+                <th>是否试学</th>
+                <th>是否缴费</th>
+                <th>是否开户</th>
+                <th>推荐人</th>
+                <th>推荐人手机号码</th>
+                <th>跟进状态</th>
+                <th>注册时间</th>
+                <th class="col-ops">操作</th>
+              </tr>
+            </thead>
+            <tbody id="data-tbody"></tbody>
+          </table>
+          <div id="empty-tip" style="display:none;text-align:center;padding:48px 0;color:#bbb;">
+            <div style="font-size:40px;margin-bottom:10px;">📋</div>
+            <p style="font-size:13px;">暂无数据</p>
+          </div>
+        </div>
+
+        <!-- ===== 分页 ===== -->
+        <div class="pager-wrap">
+          <div class="pager-total" id="pager-total">共 0 条记录</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="pager" id="pg-nums"></div>
+            <select class="pg-sel" id="pg-size" onchange="onPageSizeChange()">
+              <option value="10" selected>10条/页</option>
+              <option value="20">20条/页</option>
+              <option value="50">50条/页</option>
+            </select>
+            <div class="pg-jump">
+              前往 <input type="number" id="pg-jump-val" min="1" value="1" onchange="jumpPage(this.value)" /> 页
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 跟进抗屉 ===== -->
+<div class="drawer-mask" id="follow-drawer-mask" onclick="drawerMaskClose(event)">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">跟进记录</span>
+      <span class="drawer-x" onclick="closeDrawer()">✕</span>
+    </div>
+    <div class="drawer-body">
+      <!-- 基础信息 -->
+      <div class="section-hd">基础信息</div>
+      <div class="info-block">
+        <div class="info-row-2">
+          <div class="info-kv"><span class="info-k">客户姓名</span><span class="info-v" id="di-name">—</span></div>
+          <div class="info-kv"><span class="info-k">联系方式</span><span class="info-v" id="di-phone">—</span></div>
+        </div>
+        <div class="info-row-2">
+          <div class="info-kv"><span class="info-k">客户来源</span><span class="info-v" id="di-source">—</span></div>
+          <div class="info-kv">
+            <span class="info-k">跟进状态</span>
+            <select class="sel" id="di-status-sel" onchange="setDrawerStatus(this.value)" style="height:30px;font-size:12px;margin-top:2px;">
+              <option value="待跟进">待跟进</option>
+              <option value="已跟进">已跟进</option>
+              <option value="成交">成交</option>
+              <option value="放弃">放弃</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- 跟进历史 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="section-hd" style="padding:0;margin:0;">跟进记录历史</div>
+        <button class="btn btn-primary" style="height:28px;font-size:12px;padding:0 12px;" onclick="openAddRecord()">＋ 新增</button>
+      </div>
+      <div id="timeline-wrap"></div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-primary" style="width:100%;" onclick="saveDrawer()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 新增跟进记录弹窗 ===== -->
+<div class="modal-mask" id="add-record-mask" onclick="addRecordMaskClose(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">新增跟进记录</span>
+      <span class="modal-x" onclick="closeAddRecord()">✕</span>
+    </div>
+    <div style="padding:20px 22px;">
+      <div class="flw-grid-2">
+        <div class="flw-field">
+          <label>跟进时间</label>
+          <input class="inp" type="datetime-local" id="r-time" />
+        </div>
+        <div class="flw-field">
+          <label>跟进方式</label>
+          <div class="pill-group" id="r-method-group">
+            <button class="pill" data-val="微信" onclick="setPill('r-method-group',this)">微信</button>
+            <button class="pill" data-val="电话" onclick="setPill('r-method-group',this)">电话</button>
+            <button class="pill pill-orange" data-val="面谈" onclick="setPill('r-method-group',this)">面谈</button>
+            <button class="pill pill-purple" data-val="线上" onclick="setPill('r-method-group',this)">线上</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="flw-label">跟进内容（沟通简述）</label>
+        <textarea class="inp flw-ta" id="r-content" rows="3" placeholder="请输入本次沟通内容..."></textarea>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="flw-label">客户诉求 / 顾虑</label>
+        <textarea class="inp flw-ta" id="r-demand" rows="2" placeholder="请输入客户诉求或顾虑..."></textarea>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="flw-label">本次跟进结果</label>
+        <input class="inp" id="r-result" placeholder="请描述本次跟进结果" />
+      </div>
+      <div class="flw-grid-2" style="margin-top:14px;">
+        <div class="flw-field">
+          <label>负责人</label>
+          <input class="inp" id="r-owner" placeholder="请输入负责人姓名" />
+        </div>
+        <div class="flw-field">
+          <label>备注</label>
+          <input class="inp" id="r-remark" placeholder="其他补充信息" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" onclick="closeAddRecord()">取消</button>
+      <button class="btn btn-primary" onclick="saveRecord()">保存记录</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 样本数据 =====
+const ALL_DATA = [
+  {name:'刘梦欣',phone:'15849649354',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
+  {name:'汪垂崎',phone:'15592656070',area:'山西省·晋城市·城区',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
+  {name:'郭骏泽',phone:'15835607267',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
+  {name:'郑奉睿',phone:'15235603506',area:'山西省·晋城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
+  {name:'刘弘睿',phone:'15903565217',area:'山西省·昌城市·城区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-21 08:50:08'},
+  {name:'赵晓涵',phone:'13812345670',area:'山西省·太原市·小店区',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-20 14:22:31'},
+  {name:'陈建国',phone:'13956781234',area:'山西省·长治市·上党区',trial:0,paid:0,account:0,referrer:'李明',refPhone:'15623456789',regTime:'2026-09-20 10:15:44'},
+  {name:'张雨萱',phone:'15601234567',area:'山西省·运城市·盐湖区',trial:1,paid:1,account:0,referrer:'张鑫',refPhone:'13756789012',regTime:'2026-09-19 16:38:02'},
+  {name:'王子豪',phone:'13700987654',area:'山西省·大同市·云冈区',trial:1,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-19 09:44:17'},
+  {name:'李依依',phone:'15934561234',area:'山西省·晋城市·高平市',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-18 11:20:55'},
+  {name:'孙鸿飞',phone:'13611223344',area:'山西省·晋城市·城区',trial:0,paid:0,account:0,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-18 08:05:30'},
+  {name:'周美琪',phone:'15788889999',area:'山西省·太原市·杏花岭区',trial:1,paid:1,account:1,referrer:'李明',refPhone:'15623456789',regTime:'2026-09-17 15:30:00'},
+  {name:'吴嘉轩',phone:'13923456781',area:'山西省·运城市·永济市',trial:1,paid:0,account:0,referrer:'张鑫',refPhone:'13756789012',regTime:'2026-09-17 09:12:40'},
+  {name:'冯雪峰',phone:'15012345678',area:'山西省·吕梁市·离石区',trial:0,paid:0,account:0,referrer:'王磊',refPhone:'13912345678',regTime:'2026-09-16 13:55:18'},
+  {name:'蒋小云',phone:'13834561234',area:'山西省·晋中市·榆次区',trial:1,paid:1,account:1,referrer:'贾贝键',refPhone:'15838183699',regTime:'2026-09-16 08:40:22'},
+];
+
+let filteredData = [...ALL_DATA];
+let pageNum = 1;
+let pageSize = 10;
+
+// ===== 侧边栏 =====
+function toggleNav(el){ el.classList.toggle('open'); }
+
+// ===== 筛选展开/收起 =====
+function toggleFilter(){
+  const extra=document.getElementById('filter-extra');
+  const btn=document.getElementById('filter-toggle');
+  const isOpen=extra.classList.contains('open');
+  extra.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+  btn.innerHTML=isOpen?'展开 <span class="arr">▼</span>':'收起 <span class="arr">▼</span>';
+}
+function setActive(el){
+  document.querySelectorAll('.sub-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== 搜索 =====
+function doSearch(){
+  const name = document.getElementById('f-name').value.trim().toLowerCase();
+  const phone = document.getElementById('f-phone').value.trim();
+  const referrer = document.getElementById('f-referrer').value;
+  const trial = document.getElementById('f-trial').value;
+  const paid = document.getElementById('f-paid').value;
+  const account = document.getElementById('f-account').value;
+  const followStatus = document.getElementById('f-follow-status').value;
+
+  filteredData = ALL_DATA.filter(d=>{
+    if(name && !d.name.toLowerCase().includes(name)) return false;
+    if(phone && !d.phone.includes(phone)) return false;
+    if(referrer && d.refPhone !== referrer) return false;
+    if(trial !== '' && d.trial !== parseInt(trial)) return false;
+    if(paid !== '' && d.paid !== parseInt(paid)) return false;
+    if(account !== '' && d.account !== parseInt(account)) return false;
+    if(followStatus && (d.followStatus||'待跟进') !== followStatus) return false;
+    return true;
+  });
+  pageNum = 1;
+  render();
+}
+
+function doReset(){
+  document.getElementById('f-name').value='';
+  document.getElementById('f-phone').value='';
+  document.getElementById('f-referrer').value='';
+  document.getElementById('f-trial').value='';
+  document.getElementById('f-paid').value='';
+  document.getElementById('f-account').value='';
+  document.getElementById('f-follow-status').value='';
+  filteredData = [...ALL_DATA];
+  pageNum = 1;
+  render();
+}
+
+// ===== 渲染 =====
+function yesNo(v){
+  return v===1
+    ? '<span class="badge-yes">是</span>'
+    : '<span class="badge-no">否</span>';
+}
+
+function avatarSvg(){
+  return `<div class="avatar-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>`;
+}
+
+function render(){
+  const total = filteredData.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  if(pageNum > pages) pageNum = pages;
+
+  document.getElementById('pager-total').textContent = '共 '+total+' 条记录';
+  document.getElementById('pg-jump-val').value = pageNum;
+
+  const start = (pageNum-1)*pageSize;
+  const slice = filteredData.slice(start, start+pageSize);
+
+  const tbody = document.getElementById('data-tbody');
+  const empty = document.getElementById('empty-tip');
+
+  if(total===0){
+    tbody.innerHTML='';
+    empty.style.display='block';
+  } else {
+    empty.style.display='none';
+    tbody.innerHTML = slice.map(d=>`<tr>
+      <td class="col-chk"><input type="checkbox" class="row-chk" /></td>
+      <td class="col-avatar">${avatarSvg()}</td>
+      <td style="font-weight:500;">${d.name}</td>
+      <td>${d.phone}</td>
+      <td style="color:#666;">${d.area}</td>
+      <td>${yesNo(d.trial)}</td>
+      <td>${yesNo(d.paid)}</td>
+      <td>${yesNo(d.account)}</td>
+      <td>${d.referrer}</td>
+      <td style="color:#666;">${d.refPhone}</td>
+      <td>${followStatusBadge(d.followStatus)}</td>
+      <td style="color:#999;white-space:nowrap;">${d.regTime}</td>
+      <td class="col-ops"><button class="btn-link" onclick="openFollowModal('${d.phone}')">跟进记录</button></td>
+    </tr>`).join('');
+  }
+
+  renderPager(total, pages);
+  document.getElementById('chk-all').checked = false;
+}
+
+// ===== 分页 =====
+function renderPager(total, pages){
+  const container = document.getElementById('pg-nums');
+  let html = `<button class="pg-btn" onclick="changePage(-1)" ${pageNum<=1?'disabled':''}>&#8249;</button>`;
+  const range = getPagerRange(pageNum, pages);
+  range.forEach(p=>{
+    if(p==='...') html+=`<button class="pg-btn" disabled>···</button>`;
+    else html+=`<button class="pg-btn${p===pageNum?' active':''}" onclick="gotoPage(${p})">${p}</button>`;
+  });
+  html+=`<button class="pg-btn" onclick="changePage(1)" ${pageNum>=pages?'disabled':''}>&#8250;</button>`;
+  container.innerHTML = html;
+}
+
+function getPagerRange(cur, total){
+  if(total<=7) return Array.from({length:total},(_,i)=>i+1);
+  const r=[1];
+  if(cur>3) r.push('...');
+  for(let i=Math.max(2,cur-1);i<=Math.min(total-1,cur+1);i++) r.push(i);
+  if(cur<total-2) r.push('...');
+  r.push(total);
+  return r;
+}
+
+function changePage(d){
+  const pages=Math.max(1,Math.ceil(filteredData.length/pageSize));
+  pageNum=Math.min(Math.max(1,pageNum+d),pages);
+  render();
+}
+function gotoPage(p){ pageNum=p; render(); }
+function jumpPage(v){
+  const pages=Math.max(1,Math.ceil(filteredData.length/pageSize));
+  pageNum=Math.min(Math.max(1,parseInt(v)||1),pages);
+  render();
+}
+function onPageSizeChange(){
+  pageSize=parseInt(document.getElementById('pg-size').value);
+  pageNum=1;
+  render();
+}
+
+// ===== 全选 =====
+function toggleAll(chk){
+  document.querySelectorAll('.row-chk').forEach(c=>c.checked=chk.checked);
+}
+
+// ===== 跟进抗屉 =====
+let drawerPhone = null;
+
+function openFollowModal(phone){
+  drawerPhone = phone;
+  const d = ALL_DATA.find(x=>x.phone===phone);
+  if(!d) return;
+  if(!d.followStatus) d.followStatus='待跟进';
+  if(!d.followRecords) d.followRecords=[];
+  document.getElementById('di-name').textContent = d.name;
+  document.getElementById('di-phone').textContent = d.phone;
+  document.getElementById('di-source').textContent = d.referrer ? d.referrer+'（用户推荐）' : '用户推荐';
+  document.getElementById('di-status-sel').value = d.followStatus||'待跟进';
+  renderTimeline(d);
+  document.getElementById('follow-drawer-mask').classList.add('show');
+}
+function closeDrawer(){ document.getElementById('follow-drawer-mask').classList.remove('show'); }
+function saveDrawer(){ closeDrawer(); showToast('保存成功'); }
+function drawerMaskClose(e){ if(e.target===document.getElementById('follow-drawer-mask')) closeDrawer(); }
+
+function setDrawerStatus(val){
+  const d=ALL_DATA.find(x=>x.phone===drawerPhone);
+  if(!d) return;
+  d.followStatus=val;
+}
+
+function renderTimeline(d){
+  const wrap=document.getElementById('timeline-wrap');
+  const records=d.followRecords||[];
+  if(!records.length){
+    wrap.innerHTML='<div class="tl-empty"><div class="tl-empty-icon">📝</div>暂无跟进记录<br><span style="font-size:12px;">点击下方按鈕新增第一条</span></div>';
+    return;
+  }
+  const items=records.map((r,origIdx)=>{
+    const rows=[
+      r.content?`<div class="tl-card-row"><span class="tl-card-k">内容：</span><span class="tl-card-v">${r.content}</span></div>`:'',
+      r.demand?`<div class="tl-card-row"><span class="tl-card-k">诉求：</span><span class="tl-card-v">${r.demand}</span></div>`:'',
+      r.result?`<div class="tl-card-row"><span class="tl-card-k">结果：</span><span class="tl-card-v">${r.result}</span></div>`:'',
+      r.owner?`<div class="tl-card-row"><span class="tl-card-k">负责人：</span><span class="tl-card-v">${r.owner}</span></div>`:'',
+      r.remark?`<div class="tl-card-row"><span class="tl-card-k">备注：</span><span class="tl-card-v">${r.remark}</span></div>`:'',
+    ].filter(Boolean).join('');
+    return `<div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-meta">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="tl-time">${r.time||'—'}</span>
+          ${r.method?`<span class="tl-method">${r.method}</span>`:''}
+        </div>
+        <button class="tl-del" onclick="deleteRecord(${origIdx})">删除</button>
+      </div>
+      <div class="tl-card">${rows||'<span style="color:#bbb;font-size:12px;">无内容</span>'}</div>
+    </div>`;
+  });
+  wrap.innerHTML='<div class="tl-wrap">'+items.reverse().join('')+'</div>';
+}
+
+function openAddRecord(){
+  const now=new Date();
+  document.getElementById('r-time').value=now.toISOString().slice(0,16);
+  setPillValue('r-method-group','');
+  ['r-content','r-demand','r-result','r-owner','r-remark'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-record-mask').classList.add('show');
+}
+function closeAddRecord(){ document.getElementById('add-record-mask').classList.remove('show'); }
+function addRecordMaskClose(e){ if(e.target===document.getElementById('add-record-mask')) closeAddRecord(); }
+
+function saveRecord(){
+  const d=ALL_DATA.find(x=>x.phone===drawerPhone);
+  if(!d) return;
+  if(!d.followRecords) d.followRecords=[];
+  const t=document.getElementById('r-time').value;
+  d.followRecords.push({
+    time: t?t.replace('T',' '):'',
+    method: getActivePill('r-method-group'),
+    content: document.getElementById('r-content').value.trim(),
+    demand: document.getElementById('r-demand').value.trim(),
+    result: document.getElementById('r-result').value.trim(),
+    owner: document.getElementById('r-owner').value.trim(),
+    remark: document.getElementById('r-remark').value.trim(),
+  });
+  renderTimeline(d);
+  closeAddRecord();
+  showToast('跟进记录已保存');
+}
+
+function followStatusBadge(s){
+  s=s||'待跟进';
+  const m={'待跟进':'fs-wait','已跟进':'fs-done','成交':'fs-deal','放弃':'fs-drop'};
+  return `<span class="fs-badge ${m[s]||'fs-wait'}">${s}</span>`;
+}
+
+function deleteRecord(idx){
+  const d=ALL_DATA.find(x=>x.phone===drawerPhone);
+  if(!d||!d.followRecords) return;
+  d.followRecords.splice(idx,1);
+  renderTimeline(d);
+  showToast('记录已删除');
+}
+
+function setPill(groupId,btn){
+  document.querySelectorAll('#'+groupId+' .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setPillValue(groupId,val){
+  document.querySelectorAll('#'+groupId+' .pill').forEach(b=>b.classList.toggle('active',b.dataset.val===val));
+}
+function getActivePill(groupId){
+  const a=document.querySelector('#'+groupId+' .pill.active');
+  return a?a.dataset.val:'';
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  Object.assign(t.style,{position:'fixed',top:'24px',left:'50%',transform:'translateX(-50%)',
+    background:'rgba(0,0,0,.75)',color:'#fff',padding:'9px 22px',borderRadius:'20px',
+    fontSize:'13px',zIndex:'9999',pointerEvents:'none',transition:'opacity .3s'});
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';},1500);
+  setTimeout(()=>{t.remove();},1900);
+}
+
+// ===== 初始化 =====
+render();
+</script>
+</body>
+</html>
