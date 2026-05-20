@@ -570,12 +570,13 @@
         </div>
         <div class="flw-field">
           <label>跟进方式</label>
-          <div class="pill-group" id="r-method-group">
-            <button class="pill" data-val="微信" onclick="setPill('r-method-group',this)">微信</button>
-            <button class="pill" data-val="电话" onclick="setPill('r-method-group',this)">电话</button>
-            <button class="pill pill-orange" data-val="面谈" onclick="setPill('r-method-group',this)">面谈</button>
-            <button class="pill pill-purple" data-val="线上" onclick="setPill('r-method-group',this)">线上</button>
-          </div>
+          <select class="inp" id="r-method-group">
+            <option value="">请选择跟进方式</option>
+            <option value="微信">微信</option>
+            <option value="电话">电话</option>
+            <option value="面谈">面谈</option>
+            <option value="线上">线上</option>
+          </select>
         </div>
       </div>
       <div style="margin-top:14px;">
@@ -585,10 +586,6 @@
       <div style="margin-top:14px;">
         <label class="flw-label">客户诉求 / 顾虑</label>
         <textarea class="inp flw-ta" id="r-demand" rows="2" placeholder="请输入客户诉求或顾虑..."></textarea>
-      </div>
-      <div style="margin-top:14px;">
-        <label class="flw-label">本次跟进结果</label>
-        <input class="inp" id="r-result" placeholder="请描述本次跟进结果" />
       </div>
       <div class="flw-grid-2" style="margin-top:14px;">
         <div class="flw-field">
@@ -869,8 +866,8 @@ function renderTimeline(d){
 function openAddRecord(){
   const now=new Date();
   document.getElementById('r-time').value=now.toISOString().slice(0,16);
-  setPillValue('r-method-group','');
-  ['r-content','r-demand','r-result','r-owner','r-remark'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-method-group').value='';
+  ['r-content','r-demand','r-owner','r-remark'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('add-record-mask').classList.add('show');
 }
 function closeAddRecord(){ document.getElementById('add-record-mask').classList.remove('show'); }
@@ -883,10 +880,9 @@ function saveRecord(){
   const t=document.getElementById('r-time').value;
   d.followRecords.push({
     time: t?t.replace('T',' '):'',
-    method: getActivePill('r-method-group'),
+    method: document.getElementById('r-method-group').value,
     content: document.getElementById('r-content').value.trim(),
     demand: document.getElementById('r-demand').value.trim(),
-    result: document.getElementById('r-result').value.trim(),
     owner: document.getElementById('r-owner').value.trim(),
     remark: document.getElementById('r-remark').value.trim(),
   });
