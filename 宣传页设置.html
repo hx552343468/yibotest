@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>博云志学点点总后台 - 体验卡管理</title>
+  <title>博云志学点点总后台 - 宣传页设置</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;font-size:14px;}
@@ -23,13 +23,12 @@
     .nav-parent.open .nav-arrow{transform:rotate(180deg);}
     .sub-nav{display:none;background:rgba(0,0,0,.18);}
     .nav-parent.open+.sub-nav{display:block;}
-    .sub-item{display:flex;align-items:center;padding:9px 16px 9px 42px;font-size:13px;color:#9ca3b0;cursor:pointer;transition:all .2s;position:relative;}
+    .sub-item{display:flex;align-items:center;padding:9px 16px 9px 42px;font-size:13px;color:#9ca3b0;cursor:pointer;transition:all .2s;position:relative;text-decoration:none;}
     .sub-item:hover{color:#e0e4ef;background:rgba(255,255,255,.04);}
     .sub-item.active{color:#1890ff;background:rgba(24,144,255,.12);}
     .sub-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#1890ff;border-radius:0 2px 2px 0;}
     /* ===== Main ===== */
     .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
-    /* ===== Header ===== */
     .header{height:54px;background:#fff;display:flex;align-items:center;padding:0 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);z-index:20;flex-shrink:0;}
     .header-collapse{font-size:17px;color:#666;cursor:pointer;margin-right:12px;}
     .header-breadcrumb{font-size:13px;color:#999;flex:1;}
@@ -74,27 +73,22 @@
     tbody td{padding:11px 14px;font-size:13px;color:#333;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
     tbody tr:last-child td{border-bottom:none;}
     tbody tr:hover td{background:#fafafa;}
-    thead th:last-child{text-align:center;}
+    thead th:last-child,tbody td:last-child{text-align:center;}
     /* ===== Status ===== */
     .status-on{display:inline-flex;align-items:center;gap:4px;color:#52c41a;font-size:12px;}
     .status-off{display:inline-flex;align-items:center;gap:4px;color:#bbb;font-size:12px;}
     .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;}
-    .level-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;}
-    .lt-gold{background:#fffbe6;color:#d48806;border:1px solid #ffe58f;}
-    .lt-blue{background:#e6f4ff;color:#1677ff;border:1px solid #91caff;}
-    .lt-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
-    .lt-purple{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7;}
     /* ===== Pagination ===== */
     .pager{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:14px 20px 16px;}
     .pager-info{font-size:12px;color:#999;margin-right:8px;}
     .pg-btn{min-width:30px;height:30px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#333;transition:all .2s;padding:0 8px;}
     .pg-btn:hover,.pg-btn.active{color:#1890ff;border-color:#1890ff;}
     .pg-btn.active{background:#e6f4ff;}
-    .pg-sel{border:1px solid #d9d9d9;border-radius:4px;padding:3px 6px;font-size:12px;margin:0 4px;}
+    .pg-btn:disabled{opacity:.4;cursor:not-allowed;}
     /* ===== Modal ===== */
     .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;}
     .modal-bg.show{display:flex;}
-    .modal{background:#fff;border-radius:8px;width:460px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.18);animation:modalIn .2s ease;}
+    .modal{background:#fff;border-radius:8px;width:480px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.18);animation:modalIn .2s ease;}
     @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(-10px);}to{opacity:1;transform:scale(1) translateY(0);}}
     .modal-head{padding:16px 22px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
     .modal-title{font-size:15px;font-weight:600;}
@@ -106,7 +100,6 @@
     .mg label{display:block;font-size:13px;color:#444;margin-bottom:7px;font-weight:500;}
     .mg label .req{color:#ff4d4f;margin-right:3px;}
     .mg .inp,.mg .sel{width:100%;height:34px;}
-    .mg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
     /* ===== Switch ===== */
     .sw{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
     .sw-track{width:38px;height:20px;border-radius:10px;background:#d9d9d9;position:relative;transition:background .25s;}
@@ -114,6 +107,11 @@
     .sw-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .25s;}
     .sw-track.on .sw-thumb{left:20px;}
     .sw-label{font-size:12px;color:#666;}
+    /* ===== View panel ===== */
+    .view-row{display:flex;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
+    .view-row:last-child{border-bottom:none;}
+    .view-label{width:90px;color:#999;flex-shrink:0;}
+    .view-val{color:#333;flex:1;}
     /* ===== Empty ===== */
     .empty{text-align:center;padding:48px 0;color:#bbb;}
     .empty-icon{font-size:44px;margin-bottom:10px;}
@@ -129,7 +127,7 @@
     <div class="logo">博云志学点点总后台</div>
 
     <div class="nav-group">
-      <div class="nav-parent open" onclick="toggleNav(this)">
+      <div class="nav-parent" onclick="toggleNav(this)">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M5 3V2M11 3V2"/><path d="M1 7h14"/></svg>
         <span class="nav-label">代理管理</span>
         <span class="nav-arrow">▾</span>
@@ -138,8 +136,8 @@
         <div class="sub-item" onclick="setActive(this)">开户统计</div>
         <div class="sub-item" onclick="setActive(this)">代理列表</div>
         <div class="sub-item" onclick="setActive(this)">代理开户数</div>
-        <a href="index.html" class="sub-item" style="text-decoration:none;">代理商级别管理</a>
-        <div class="sub-item active">体验卡管理</div>
+        <a href="index.html" class="sub-item">代理商级别管理</a>
+        <a href="体验卡管理.html" class="sub-item">体验卡管理</a>
       </div>
     </div>
 
@@ -151,7 +149,7 @@
       </div>
       <div class="sub-nav">
         <div class="sub-item" onclick="setActive(this)">学员列表</div>
-        <a href="圈流列表.html" class="sub-item" style="text-decoration:none;">圈流列表</a>
+        <a href="圈流列表.html" class="sub-item">圈流列表</a>
       </div>
     </div>
 
@@ -212,14 +210,14 @@
     </div>
 
     <div class="nav-group">
-      <div class="nav-parent" onclick="toggleNav(this)">
+      <div class="nav-parent open" onclick="toggleNav(this)">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.8 3.6L14 5.4l-3 2.9.7 4.1L8 10.4l-3.7 2 .7-4.1-3-2.9 4.2-.8z"/></svg>
         <span class="nav-label">基础配置</span>
         <span class="nav-arrow">▾</span>
       </div>
       <div class="sub-nav">
         <div class="sub-item" onclick="setActive(this)">基础设置</div>
-        <a href="宣传页设置.html" class="sub-item" style="text-decoration:none;">宣传页设置</a>
+        <div class="sub-item active">宣传页设置</div>
       </div>
     </div>
 
@@ -274,7 +272,7 @@
   <div class="main">
     <div class="header">
       <span class="header-collapse">☰</span>
-      <div class="header-breadcrumb">代理管理 &nbsp;/&nbsp; <span>体验卡管理</span></div>
+      <div class="header-breadcrumb">基础配置 &nbsp;/&nbsp; <span>宣传页设置</span></div>
       <div class="h-icons">
         <div class="h-icon" title="消息">✉</div>
         <div class="h-icon" title="设置">⚙</div>
@@ -285,21 +283,21 @@
     <div class="content">
       <div class="card">
         <div class="card-head">
-          <div class="card-title"><span class="card-title-bar"></span>体验卡管理</div>
-          <button class="btn btn-primary btn-sm" onclick="openModal()">＋ 新增体验卡</button>
+          <div class="card-title"><span class="card-title-bar"></span>宣传页设置</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal()">＋ 新增</button>
         </div>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
-          <label>卡名称</label>
-          <input class="inp" id="f-name" placeholder="请输入卡名称" style="width:160px;" oninput="doFilter()" />
-          <label style="margin-left:12px;">状态</label>
-          <select class="sel" id="f-status" style="width:100px;" onchange="doFilter()">
-            <option value="">全部</option>
+          <label>名称</label>
+          <input class="inp" id="f-name" placeholder="请输入名称" style="width:180px;" oninput="doFilter()" />
+          <label style="margin-left:12px;">启用状态</label>
+          <select class="sel" id="f-status" style="width:120px;" onchange="doFilter()">
+            <option value="">全部状态</option>
             <option value="1">已启用</option>
             <option value="0">已禁用</option>
           </select>
-          <button class="btn btn-default btn-sm" style="margin-left:8px;" onclick="doReset()">重置</button>
+          <button class="btn btn-default btn-sm" style="margin-left:4px;" onclick="doReset()">重置</button>
         </div>
 
         <!-- 表格 -->
@@ -308,29 +306,25 @@
             <thead>
               <tr>
                 <th style="width:50px;">编号</th>
-                <th>卡名称</th>
-                <th style="width:100px;">有效天数</th>
-                <th style="width:110px;">价格（元）</th>
-                <th style="width:80px;">状态</th>
+                <th>名称</th>
+                <th style="width:90px;">是否启用</th>
+                <th style="width:150px;">创建时间</th>
+                <th style="width:90px;">创建人</th>
+                <th style="width:150px;">更新时间</th>
                 <th style="width:160px;">操作</th>
               </tr>
             </thead>
-            <tbody id="cards-tbody"></tbody>
+            <tbody id="page-tbody"></tbody>
           </table>
-          <div id="cards-empty" class="empty" style="display:none;">
-            <div class="empty-icon">🃏</div>
-            <p>暂无体验卡数据</p>
+          <div id="page-empty" class="empty" style="display:none;">
+            <div class="empty-icon">📄</div>
+            <p>暂无宣传页，点击右上角「新增」添加</p>
           </div>
         </div>
 
         <!-- 分页 -->
         <div class="pager">
           <span class="pager-info">共 <span id="total-count">0</span> 条</span>
-          <select class="pg-sel" id="pg-size" onchange="onPageSizeChange()">
-            <option value="10" selected>10/页</option>
-            <option value="20">20/页</option>
-            <option value="50">50/页</option>
-          </select>
           <button class="pg-btn" id="pg-prev" onclick="changePage(-1)">&#8249;</button>
           <span id="pg-nums"></span>
           <button class="pg-btn" id="pg-next" onclick="changePage(1)">&#8250;</button>
@@ -341,29 +335,23 @@
 </div>
 
 <!-- ===== 新增/编辑 MODAL ===== -->
-<div class="modal-bg" id="modal-bg" onclick="bgClose(event)">
+<div class="modal-bg" id="edit-modal-bg" onclick="editBgClose(event)">
   <div class="modal">
     <div class="modal-head">
-      <span class="modal-title" id="modal-title">新增体验卡</span>
+      <span class="modal-title" id="edit-modal-title">新增宣传页</span>
       <span class="modal-x" onclick="closeModal()">✕</span>
     </div>
     <div class="modal-body">
       <div class="mg">
-        <label><span class="req">*</span>卡名称</label>
-        <input class="inp" id="m-name" placeholder="请输入卡名称" />
+        <label><span class="req">*</span>名称</label>
+        <input class="inp" id="m-name" placeholder="请输入宣传页名称" />
       </div>
-      <div class="mg-row">
-        <div class="mg" style="margin-bottom:0;">
-          <label><span class="req">*</span>有效天数</label>
-          <input class="inp" id="m-days" type="number" min="1" placeholder="天数" style="width:100%;" />
-        </div>
-        <div class="mg" style="margin-bottom:0;">
-          <label><span class="req">*</span>价格（元）</label>
-          <input class="inp" id="m-price" type="number" min="0" step="0.01" placeholder="0.00" style="width:100%;" />
-        </div>
+      <div class="mg">
+        <label>宣传页描述</label>
+        <textarea class="inp" id="m-desc" placeholder="请输入宣传页描述（可选）" rows="3" style="width:100%;resize:vertical;"></textarea>
       </div>
-      <div class="mg" style="margin-top:16px;">
-        <label>状态</label>
+      <div class="mg" style="margin-bottom:0;">
+        <label>是否启用</label>
         <div class="sw" onclick="toggleSw()">
           <div class="sw-track on" id="m-sw-track"><div class="sw-thumb"></div></div>
           <span class="sw-label" id="m-sw-label">已启用</span>
@@ -373,41 +361,60 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-default" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveCard()">确定保存</button>
+      <button class="btn btn-primary" onclick="saveRecord()">确定保存</button>
     </div>
   </div>
 </div>
 
-<!-- ===== CONFIRM MODAL ===== -->
-<div class="modal-bg" id="confirm-bg" onclick="confirmBgClose(event)">
-  <div class="modal" style="width:360px;">
+<!-- ===== 查看 MODAL ===== -->
+<div class="modal-bg" id="view-modal-bg" onclick="viewBgClose(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">查看宣传页</span>
+      <span class="modal-x" onclick="closeViewModal()">✕</span>
+    </div>
+    <div class="modal-body" style="padding:16px 22px 20px;">
+      <div class="view-row"><span class="view-label">名称</span><span class="view-val" id="v-name"></span></div>
+      <div class="view-row"><span class="view-label">描述</span><span class="view-val" id="v-desc" style="color:#888;"></span></div>
+      <div class="view-row"><span class="view-label">是否启用</span><span class="view-val" id="v-status"></span></div>
+      <div class="view-row"><span class="view-label">创建时间</span><span class="view-val" id="v-created"></span></div>
+      <div class="view-row"><span class="view-label">创建人</span><span class="view-val" id="v-creator"></span></div>
+      <div class="view-row"><span class="view-label">更新时间</span><span class="view-val" id="v-updated"></span></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-default" onclick="closeViewModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 确认 MODAL ===== -->
+<div class="modal-bg" id="confirm-modal-bg">
+  <div class="modal" style="width:380px;">
     <div class="modal-head">
       <span class="modal-title" id="confirm-title">确认操作</span>
       <span class="modal-x" onclick="closeConfirm()">✕</span>
     </div>
     <div class="modal-body" style="padding:20px 22px 16px;">
-      <p id="confirm-msg" style="font-size:14px;color:#333;line-height:1.7;margin:0;"></p>
+      <p id="confirm-msg" style="font-size:14px;color:#333;margin:0;line-height:1.7;"></p>
     </div>
     <div class="modal-foot">
       <button class="btn btn-default" onclick="closeConfirm()">取消</button>
-      <button class="btn btn-primary" id="confirm-ok-btn" onclick="confirmOk()">确定</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="confirmOk()">确定删除</button>
     </div>
   </div>
 </div>
 
 <script>
 // ===== DATA =====
-let CARDS = [
-  {id:1,name:'体验卡',days:7,price:9.9,status:1},
-  {id:2,name:'月卡',days:30,price:49,status:1},
-  {id:3,name:'季卡',days:90,price:129,status:1},
-  {id:4,name:'半年卡',days:180,price:229,status:1},
-  {id:5,name:'年卡',days:365,price:399,status:1},
+let nextId = 4;
+let DATA = [
+  {id:1, name:'春季招募宣传页', desc:'春季新生招募活动主题宣传页，适用于广场展示。', status:1, createdAt:'2025-03-01 09:00', creator:'管理员', updatedAt:'2025-03-10 14:22'},
+  {id:2, name:'暑期活动宣传页', desc:'暑期促销专题页，包含优惠信息与活动详情。', status:1, createdAt:'2025-06-15 10:30', creator:'管理员', updatedAt:'2025-07-01 08:00'},
+  {id:3, name:'周年庆宣传页',   desc:'', status:0, createdAt:'2024-11-20 16:45', creator:'运营专员', updatedAt:'2024-12-05 11:30'},
 ];
-let nextId = 18;
-let filteredCards = [...CARDS];
+let filtered = [...DATA];
 let pageNum = 1;
-let pageSize = 10;
+const pageSize = 10;
 let editId = null;
 let _confirmCb = null;
 
@@ -422,166 +429,159 @@ function setActive(el){
 function doFilter(){
   const nm = document.getElementById('f-name').value.trim().toLowerCase();
   const st = document.getElementById('f-status').value;
-  filteredCards = CARDS.filter(c=>{
-    if(nm && !c.name.toLowerCase().includes(nm)) return false;
-    if(st !== '' && c.status !== parseInt(st)) return false;
+  filtered = DATA.filter(d=>{
+    if(nm && !d.name.toLowerCase().includes(nm)) return false;
+    if(st !== '' && d.status !== parseInt(st)) return false;
     return true;
   });
   pageNum = 1;
   render();
 }
 function doReset(){
-  document.getElementById('f-name').value='';
-  document.getElementById('f-status').value='';
-  filteredCards = [...CARDS];
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-status').value = '';
+  filtered = [...DATA];
   pageNum = 1;
   render();
 }
 
 // ===== RENDER =====
 function render(){
-  const total = filteredCards.length;
+  const total = filtered.length;
   document.getElementById('total-count').textContent = total;
-  const pages = Math.max(1, Math.ceil(total/pageSize));
-  if(pageNum > pages) pageNum = pages;
-
   const start = (pageNum-1)*pageSize;
-  const slice = filteredCards.slice(start, start+pageSize);
-  const tbody = document.getElementById('cards-tbody');
-  const empty = document.getElementById('cards-empty');
-
-  if(total===0){ tbody.innerHTML=''; empty.style.display='block'; }
-  else {
-    empty.style.display='none';
-    tbody.innerHTML = slice.map((c,i)=>{
-      const stHtml = c.status===1
-        ?'<span class="status-on"><span class="dot"></span>已启用</span>'
-        :'<span class="status-off"><span class="dot"></span>已禁用</span>';
-      return `<tr>
-        <td style="color:#aaa;">${start+i+1}</td>
-        <td>${c.name}</td>
-        <td><b>${c.days}</b> 天</td>
-        <td>¥ ${Number(c.price).toFixed(2)}</td>
-        <td>${stHtml}</td>
-        <td style="text-align:center;">
-          <button class="btn-link" onclick="openModal(${c.id})">编辑</button>
-          <span style="color:#e8e8e8;margin:0 2px;">|</span>
-          <button class="${c.status===1?'btn-link-danger':'btn-link'}" onclick="toggleStatus(${c.id})">${c.status===1?'禁用':'启用'}</button>
-          <span style="color:#e8e8e8;margin:0 2px;">|</span>
-          <button class="btn-link-danger" onclick="deleteCard(${c.id})">删除</button>
-        </td></tr>`;
-    }).join('');
-  }
-  renderPager(total, pages);
+  const slice = filtered.slice(start, start+pageSize);
+  const tbody = document.getElementById('page-tbody');
+  const empty = document.getElementById('page-empty');
+  if(total === 0){ tbody.innerHTML = ''; empty.style.display = 'block'; renderPager(0); return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = slice.map((d,i)=>{
+    const stHtml = d.status === 1
+      ? '<span class="status-on"><span class="dot"></span>已启用</span>'
+      : '<span class="status-off"><span class="dot"></span>已禁用</span>';
+    return `<tr>
+      <td style="color:#aaa;">${start+i+1}</td>
+      <td><b>${d.name}</b></td>
+      <td>${stHtml}</td>
+      <td style="color:#888;">${d.createdAt}</td>
+      <td>${d.creator}</td>
+      <td style="color:#888;">${d.updatedAt}</td>
+      <td>
+        <button class="btn-link" onclick="openViewModal(${d.id})">查看</button>
+        <span style="color:#e8e8e8;margin:0 2px;">|</span>
+        <a class="btn-link" href="宣传页编辑.html?name=${encodeURIComponent(d.name)}" style="text-decoration:none;">编辑</a>
+        <span style="color:#e8e8e8;margin:0 2px;">|</span>
+        <button class="btn-link-danger" onclick="confirmDelete(${d.id})">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+  renderPager(total);
 }
-function renderPager(total, pages){
-  const prev = document.getElementById('pg-prev');
-  const next = document.getElementById('pg-next');
-  prev.disabled = pageNum<=1; prev.style.opacity = pageNum<=1?'.4':'1';
-  next.disabled = pageNum>=pages; next.style.opacity = pageNum>=pages?'.4':'1';
-  const nums = document.getElementById('pg-nums');
-  let html='';
-  for(let p=1;p<=pages;p++){
-    if(p===1||p===pages||Math.abs(p-pageNum)<=1)
-      html+=`<button class="pg-btn${p===pageNum?' active':''}" onclick="gotoPage(${p})">${p}</button>`;
-    else if(Math.abs(p-pageNum)===2)
-      html+='<span style="padding:0 4px;color:#ccc;">…</span>';
-  }
-  nums.innerHTML=html;
+
+// ===== PAGER =====
+function renderPager(total){
+  const pages = Math.max(1, Math.ceil(total/pageSize));
+  let html = '';
+  for(let i=1;i<=pages;i++) html += `<button class="pg-btn${i===pageNum?' active':''}" onclick="gotoPage(${i})">${i}</button>`;
+  document.getElementById('pg-nums').innerHTML = html;
+  document.getElementById('pg-prev').disabled = pageNum <= 1;
+  document.getElementById('pg-next').disabled = pageNum >= pages;
 }
 function changePage(d){ gotoPage(pageNum+d); }
 function gotoPage(p){
-  const pages=Math.max(1,Math.ceil(filteredCards.length/pageSize));
-  pageNum=Math.max(1,Math.min(p,pages));
+  const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
+  pageNum = Math.min(Math.max(1,p), pages);
   render();
 }
-function onPageSizeChange(){
-  pageSize=parseInt(document.getElementById('pg-size').value);
-  pageNum=1; render();
-}
 
-// ===== TOGGLE STATUS =====
-function toggleStatus(id){
-  const c=CARDS.find(x=>x.id===id);
-  const isOn=c.status===1;
-  showConfirm((isOn?'禁用':'启用')+'体验卡',
-    `确定${isOn?'禁用':'启用'}「${c.name}」？`,
-    ()=>{ c.status=isOn?0:1; doFilter(); showToast(isOn?'已禁用':'已启用'); }, isOn);
-}
-function deleteCard(id){
-  const c=CARDS.find(x=>x.id===id);
-  showConfirm('删除体验卡',`确定删除「${c.name}」？此操作不可恢复！`,
-    ()=>{ CARDS=CARDS.filter(x=>x.id!==id); doFilter(); showToast('已删除'); }, true);
-}
-
-// ===== MODAL =====
+// ===== EDIT MODAL =====
 function openModal(id=null){
-  editId=id;
-  const isNew=id===null;
-  document.getElementById('modal-title').textContent=isNew?'新增体验卡':'编辑体验卡';
-  const sw=document.getElementById('m-sw-track');
-  const lbl=document.getElementById('m-sw-label');
+  editId = id;
+  const isNew = id === null;
+  document.getElementById('edit-modal-title').textContent = isNew ? '新增宣传页' : '编辑宣传页';
+  const track = document.getElementById('m-sw-track');
+  const lbl = document.getElementById('m-sw-label');
   if(isNew){
-    document.getElementById('m-name').value='';
-    document.getElementById('m-days').value='';
-    document.getElementById('m-price').value='';
-    sw.classList.add('on'); lbl.textContent='已启用'; document.getElementById('m-status').value='1';
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-desc').value = '';
+    track.classList.add('on'); lbl.textContent = '已启用'; document.getElementById('m-status').value = '1';
   } else {
-    const c=CARDS.find(x=>x.id===id);
-    document.getElementById('m-name').value=c.name;
-    document.getElementById('m-days').value=c.days;
-    document.getElementById('m-price').value=c.price;
-    if(c.status===1){ sw.classList.add('on'); lbl.textContent='已启用'; document.getElementById('m-status').value='1'; }
-    else { sw.classList.remove('on'); lbl.textContent='已禁用'; document.getElementById('m-status').value='0'; }
+    const d = DATA.find(x=>x.id===id);
+    document.getElementById('m-name').value = d.name;
+    document.getElementById('m-desc').value = d.desc||'';
+    if(d.status===1){ track.classList.add('on'); lbl.textContent='已启用'; document.getElementById('m-status').value='1'; }
+    else { track.classList.remove('on'); lbl.textContent='已禁用'; document.getElementById('m-status').value='0'; }
   }
-  document.getElementById('modal-bg').classList.add('show');
+  document.getElementById('edit-modal-bg').classList.add('show');
 }
-function closeModal(){ document.getElementById('modal-bg').classList.remove('show'); }
-function bgClose(e){ if(e.target===document.getElementById('modal-bg')) closeModal(); }
+function closeModal(){ document.getElementById('edit-modal-bg').classList.remove('show'); }
+function editBgClose(e){ if(e.target===document.getElementById('edit-modal-bg')) closeModal(); }
 function toggleSw(){
-  const sw=document.getElementById('m-sw-track');
-  const lbl=document.getElementById('m-sw-label');
-  const inp=document.getElementById('m-status');
-  const on=sw.classList.toggle('on');
-  lbl.textContent=on?'已启用':'已禁用';
-  inp.value=on?'1':'0';
+  const track = document.getElementById('m-sw-track');
+  const lbl = document.getElementById('m-sw-label');
+  const inp = document.getElementById('m-status');
+  const on = track.classList.toggle('on');
+  lbl.textContent = on ? '已启用' : '已禁用';
+  inp.value = on ? '1' : '0';
 }
-function saveCard(){
-  const name=document.getElementById('m-name').value.trim();
-  const days=parseInt(document.getElementById('m-days').value);
-  const price=parseFloat(document.getElementById('m-price').value);
-  const status=parseInt(document.getElementById('m-status').value);
-  if(!name){ showToast('请输入卡名称'); return; }
-  if(isNaN(days)||days<1){ showToast('请输入有效天数'); return; }
-  if(isNaN(price)||price<0){ showToast('请输入有效价格'); return; }
-  if(editId===null){
-    CARDS.push({id:nextId++,name,days,price,status});
+function saveRecord(){
+  const name = document.getElementById('m-name').value.trim();
+  const desc = document.getElementById('m-desc').value.trim();
+  const status = parseInt(document.getElementById('m-status').value);
+  if(!name){ showToast('请输入名称'); return; }
+  const now = fmtNow();
+  if(editId === null){
+    DATA.push({id:nextId++, name, desc, status, createdAt:now, creator:'管理员', updatedAt:now});
     showToast('新增成功');
   } else {
-    Object.assign(CARDS.find(x=>x.id===editId),{name,days,price,status});
+    const d = DATA.find(x=>x.id===editId);
+    Object.assign(d, {name, desc, status, updatedAt:now});
     showToast('保存成功');
   }
   closeModal();
   doFilter();
 }
 
-// ===== CONFIRM =====
-function showConfirm(title,msg,cb,danger=false){
-  _confirmCb=cb;
-  document.getElementById('confirm-title').textContent=title;
-  document.getElementById('confirm-msg').textContent=msg;
-  const btn=document.getElementById('confirm-ok-btn');
-  btn.className=danger?'btn btn-danger':'btn btn-primary';
-  document.getElementById('confirm-bg').classList.add('show');
+// ===== VIEW MODAL =====
+function openViewModal(id){
+  const d = DATA.find(x=>x.id===id);
+  document.getElementById('v-name').textContent = d.name;
+  document.getElementById('v-desc').textContent = d.desc||'—';
+  document.getElementById('v-status').innerHTML = d.status===1
+    ? '<span class="status-on"><span class="dot"></span>已启用</span>'
+    : '<span class="status-off"><span class="dot"></span>已禁用</span>';
+  document.getElementById('v-created').textContent = d.createdAt;
+  document.getElementById('v-creator').textContent = d.creator;
+  document.getElementById('v-updated').textContent = d.updatedAt;
+  document.getElementById('view-modal-bg').classList.add('show');
 }
-function closeConfirm(){ document.getElementById('confirm-bg').classList.remove('show'); _confirmCb=null; }
-function confirmBgClose(e){ if(e.target===document.getElementById('confirm-bg')) closeConfirm(); }
+function closeViewModal(){ document.getElementById('view-modal-bg').classList.remove('show'); }
+function viewBgClose(e){ if(e.target===document.getElementById('view-modal-bg')) closeViewModal(); }
+
+// ===== DELETE =====
+function confirmDelete(id){
+  const d = DATA.find(x=>x.id===id);
+  _confirmCb = ()=>{
+    DATA.splice(DATA.findIndex(x=>x.id===id),1);
+    doFilter();
+    showToast('已删除');
+  };
+  document.getElementById('confirm-title').textContent = '删除宣传页';
+  document.getElementById('confirm-msg').textContent = `确定删除「${d.name}」？此操作不可恢复！`;
+  document.getElementById('confirm-modal-bg').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirm-modal-bg').classList.remove('show'); }
 function confirmOk(){ if(_confirmCb) _confirmCb(); closeConfirm(); }
 
-// ===== TOAST =====
+// ===== HELPERS =====
+function fmtNow(){
+  const d = new Date();
+  const p = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 function showToast(msg){
-  const t=document.createElement('div');
-  t.textContent=msg;
+  const t = document.createElement('div');
+  t.textContent = msg;
   Object.assign(t.style,{position:'fixed',top:'24px',left:'50%',transform:'translateX(-50%)',
     background:'rgba(0,0,0,.75)',color:'#fff',padding:'9px 22px',borderRadius:'20px',
     fontSize:'13px',zIndex:'9999',pointerEvents:'none',boxShadow:'0 2px 10px rgba(0,0,0,.2)',transition:'opacity .3s'});
@@ -591,7 +591,7 @@ function showToast(msg){
 }
 
 // ===== INIT =====
-doFilter();
+render();
 </script>
 </body>
 </html>
