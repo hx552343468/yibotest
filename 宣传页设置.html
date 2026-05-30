@@ -112,6 +112,16 @@
     .view-row:last-child{border-bottom:none;}
     .view-label{width:90px;color:#999;flex-shrink:0;}
     .view-val{color:#333;flex:1;}
+    /* ===== Carousel upload ===== */
+    .carousel-upload{border:2px dashed #d9d9d9;border-radius:6px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;}
+    .carousel-upload:hover{border-color:#1890ff;background:#f0f7ff;}
+    .carousel-upload-icon{font-size:24px;color:#aaa;}
+    .carousel-upload-hint{font-size:12px;color:#999;margin-top:4px;}
+    .carousel-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+    .carousel-item{position:relative;width:70px;height:70px;border-radius:4px;overflow:hidden;border:1px solid #f0f0f0;}
+    .carousel-item img{width:100%;height:100%;object-fit:cover;}
+    .carousel-item-rm{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;}
+    .carousel-item-rm:hover{background:rgba(255,77,79,.8);}
     /* ===== Empty ===== */
     .empty{text-align:center;padding:48px 0;color:#bbb;}
     .empty-icon{font-size:44px;margin-bottom:10px;}
@@ -305,13 +315,13 @@
           <table>
             <thead>
               <tr>
-                <th style="width:50px;">编号</th>
-                <th>名称</th>
-                <th style="width:90px;">是否启用</th>
-                <th style="width:150px;">创建时间</th>
-                <th style="width:90px;">创建人</th>
-                <th style="width:150px;">更新时间</th>
-                <th style="width:160px;">操作</th>
+                <th style="width:6%;">编号</th>
+                <th style="width:25%;">名称</th>
+                <th style="width:10%;">是否启用</th>
+                <th style="width:18%;">创建时间</th>
+                <th style="width:10%;">创建人</th>
+                <th style="width:18%;">更新时间</th>
+                <th style="width:13%;">操作</th>
               </tr>
             </thead>
             <tbody id="page-tbody"></tbody>
@@ -347,8 +357,14 @@
         <input class="inp" id="m-name" placeholder="请输入宣传页名称" />
       </div>
       <div class="mg">
-        <label>宣传页描述</label>
-        <textarea class="inp" id="m-desc" placeholder="请输入宣传页描述（可选）" rows="3" style="width:100%;resize:vertical;"></textarea>
+        <label>轮播图设置</label>
+        <div style="font-size:12px;color:#999;margin-bottom:8px;">建议尺寸：710×1580px</div>
+        <div class="carousel-upload" id="carousel-upload" onclick="document.getElementById('carousel-input').click()">
+          <span class="carousel-upload-icon">＋</span>
+          <span class="carousel-upload-hint">点击上传轮播图</span>
+        </div>
+        <input type="file" id="carousel-input" accept="image/*" multiple style="display:none;" onchange="handleCarouselFiles(this.files)" />
+        <div class="carousel-list" id="carousel-list"></div>
       </div>
       <div class="mg" style="margin-bottom:0;">
         <label>是否启用</label>
@@ -375,7 +391,7 @@
     </div>
     <div class="modal-body" style="padding:16px 22px 20px;">
       <div class="view-row"><span class="view-label">名称</span><span class="view-val" id="v-name"></span></div>
-      <div class="view-row"><span class="view-label">描述</span><span class="view-val" id="v-desc" style="color:#888;"></span></div>
+      <div class="view-row"><span class="view-label">轮播图</span><span class="view-val" id="v-carousel" style="display:flex;flex-wrap:wrap;gap:8px;"></span></div>
       <div class="view-row"><span class="view-label">是否启用</span><span class="view-val" id="v-status"></span></div>
       <div class="view-row"><span class="view-label">创建时间</span><span class="view-val" id="v-created"></span></div>
       <div class="view-row"><span class="view-label">创建人</span><span class="view-val" id="v-creator"></span></div>
@@ -408,15 +424,16 @@
 // ===== DATA =====
 let nextId = 4;
 let DATA = [
-  {id:1, name:'春季招募宣传页', desc:'春季新生招募活动主题宣传页，适用于广场展示。', status:1, createdAt:'2025-03-01 09:00', creator:'管理员', updatedAt:'2025-03-10 14:22'},
-  {id:2, name:'暑期活动宣传页', desc:'暑期促销专题页，包含优惠信息与活动详情。', status:1, createdAt:'2025-06-15 10:30', creator:'管理员', updatedAt:'2025-07-01 08:00'},
-  {id:3, name:'周年庆宣传页',   desc:'', status:0, createdAt:'2024-11-20 16:45', creator:'运营专员', updatedAt:'2024-12-05 11:30'},
+  {id:1, name:'春季招募宣传页', carousel:['data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzEwIiBoZWlnaHQ9IjE1ODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzY3YzIzYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjQ4Ij7mta7nva7lkI7ms6Hph4/kuK08L3RleHQ+PC9zdmc+','data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzEwIiBoZWlnaHQ9IjE1ODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzE4OTBmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjQ4Ij7ms6Hph4/kuK08L3RleHQ+PC9zdmc+'], status:1, createdAt:'2025-03-01 09:00', creator:'管理员', updatedAt:'2025-03-10 14:22'},
+  {id:2, name:'暑期活动宣传页', carousel:[], status:1, createdAt:'2025-06-15 10:30', creator:'管理员', updatedAt:'2025-07-01 08:00'},
+  {id:3, name:'周年庆宣传页',   carousel:[], status:0, createdAt:'2024-11-20 16:45', creator:'运营专员', updatedAt:'2024-12-05 11:30'},
 ];
 let filtered = [...DATA];
 let pageNum = 1;
 const pageSize = 10;
 let editId = null;
 let _confirmCb = null;
+let _carouselFiles = [];
 
 // ===== SIDEBAR =====
 function toggleNav(el){ el.classList.toggle('open'); }
@@ -503,12 +520,17 @@ function openModal(id=null){
   const lbl = document.getElementById('m-sw-label');
   if(isNew){
     document.getElementById('m-name').value = '';
-    document.getElementById('m-desc').value = '';
+    _carouselFiles = [
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzEwIiBoZWlnaHQ9IjE1ODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzY3YzIzYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjQ4Ij7mta7nva7lkI7ms6Hph4/kuK08L3RleHQ+PC9zdmc+',
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzEwIiBoZWlnaHQ9IjE1ODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzE4OTBmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjQ4Ij7ms6Hph4/kuK08L3RleHQ+PC9zdmc+'
+    ];
+    renderCarouselList();
     track.classList.add('on'); lbl.textContent = '已启用'; document.getElementById('m-status').value = '1';
   } else {
     const d = DATA.find(x=>x.id===id);
     document.getElementById('m-name').value = d.name;
-    document.getElementById('m-desc').value = d.desc||'';
+    _carouselFiles = d.carousel ? [...d.carousel] : [];
+    renderCarouselList();
     if(d.status===1){ track.classList.add('on'); lbl.textContent='已启用'; document.getElementById('m-status').value='1'; }
     else { track.classList.remove('on'); lbl.textContent='已禁用'; document.getElementById('m-status').value='0'; }
   }
@@ -526,16 +548,15 @@ function toggleSw(){
 }
 function saveRecord(){
   const name = document.getElementById('m-name').value.trim();
-  const desc = document.getElementById('m-desc').value.trim();
   const status = parseInt(document.getElementById('m-status').value);
   if(!name){ showToast('请输入名称'); return; }
   const now = fmtNow();
   if(editId === null){
-    DATA.push({id:nextId++, name, desc, status, createdAt:now, creator:'管理员', updatedAt:now});
+    DATA.push({id:nextId++, name, carousel:[..._carouselFiles], status, createdAt:now, creator:'管理员', updatedAt:now});
     showToast('新增成功');
   } else {
     const d = DATA.find(x=>x.id===editId);
-    Object.assign(d, {name, desc, status, updatedAt:now});
+    Object.assign(d, {name, carousel:[..._carouselFiles], status, updatedAt:now});
     showToast('保存成功');
   }
   closeModal();
@@ -546,7 +567,8 @@ function saveRecord(){
 function openViewModal(id){
   const d = DATA.find(x=>x.id===id);
   document.getElementById('v-name').textContent = d.name;
-  document.getElementById('v-desc').textContent = d.desc||'—';
+  const carouselHtml = (d.carousel||[]).length ? d.carousel.map(src=>`<img src="${src}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;border:1px solid #f0f0f0;">`).join('') : '<span style="color:#999;font-size:13px;">暂无轮播图</span>';
+  document.getElementById('v-carousel').innerHTML = carouselHtml;
   document.getElementById('v-status').innerHTML = d.status===1
     ? '<span class="status-on"><span class="dot"></span>已启用</span>'
     : '<span class="status-off"><span class="dot"></span>已禁用</span>';
@@ -557,6 +579,28 @@ function openViewModal(id){
 }
 function closeViewModal(){ document.getElementById('view-modal-bg').classList.remove('show'); }
 function viewBgClose(e){ if(e.target===document.getElementById('view-modal-bg')) closeViewModal(); }
+
+// ===== CAROUSEL UPLOAD =====
+function handleCarouselFiles(files){
+  [...files].forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      _carouselFiles.push(e.target.result);
+      renderCarouselList();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('carousel-input').value = '';
+}
+function renderCarouselList(){
+  const list = document.getElementById('carousel-list');
+  list.innerHTML = _carouselFiles.map((src,i)=>`<div class="carousel-item"><img src="${src}" /><div class="carousel-item-rm" onclick="removeCarousel(${i},event)">✕</div></div>`).join('');
+}
+function removeCarousel(idx,e){
+  e.stopPropagation();
+  _carouselFiles.splice(idx,1);
+  renderCarouselList();
+}
 
 // ===== DELETE =====
 function confirmDelete(id){
