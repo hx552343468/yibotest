@@ -435,23 +435,11 @@
             </div>
             <div class="filter-item">
               <label>代理商</label>
-              <select class="sel" id="f-agent">
-                <option value="">请选择级别</option>
-                <option value="总代">总代</option>
-                <option value="省代">省代</option>
-                <option value="市代">市代</option>
-                <option value="区代">区代</option>
-              </select>
+              <input class="inp" id="f-agent" />
             </div>
             <div class="filter-item">
               <label>推荐人代理商</label>
-              <select class="sel" id="f-ref-agent">
-                <option value="">请选择级别</option>
-                <option value="总代">总代</option>
-                <option value="省代">省代</option>
-                <option value="市代">市代</option>
-                <option value="区代">区代</option>
-              </select>
+              <input class="inp" id="f-ref-agent" />
             </div>
           </div>
           <!-- 操作栏 -->
@@ -684,8 +672,8 @@ function doSearch(){
     if(account !== '' && d.account !== parseInt(account)) return false;
     if(followStatus && (d.followStatus||'待跟进') !== followStatus) return false;
     if(_cascaderVal && !d.area.includes(_cascaderVal)) return false;
-    if(agent && d.agent !== agent) return false;
-    if(refAgent && d.refAgent !== refAgent) return false;
+    if(agent && !d.agent.toLowerCase().includes(agent.toLowerCase())) return false;
+    if(refAgent && !d.refAgent.toLowerCase().includes(refAgent.toLowerCase())) return false;
     return true;
   });
   pageNum = 1;
@@ -745,14 +733,14 @@ function render(){
       <td class="col-avatar">${avatarSvg()}</td>
       <td style="font-weight:500;">${d.name}</td>
       <td>${d.phone}</td>
-      <td><div style="font-size:13px;color:#333;">${d.agent||'—'}</div>${d.agentName?`<div style="font-size:12px;color:#999;margin-top:2px;">${d.agentName}</div>`:''}</td>
+      <td>${d.agentName||'—'}</td>
       <td style="color:#666;">${d.area}</td>
       <td>${yesNo(d.trial)}</td>
       <td>${yesNo(d.paid)}</td>
       <td>${yesNo(d.account)}</td>
       <td>${d.referrer}</td>
       <td style="color:#666;">${d.refPhone}</td>
-      <td><div style="font-size:13px;color:#333;">${d.refAgent||'—'}</div>${d.referrer?`<div style="font-size:12px;color:#999;margin-top:2px;">${d.referrer}</div>`:''}</td>
+      <td>${d.referrer||'—'}</td>
       <td>${followStatusBadge(d.followStatus)}</td>
       <td style="color:#999;white-space:nowrap;">${d.regTime}</td>
       <td class="col-ops"><button class="btn-link" onclick="openFollowModal('${d.phone}')">跟进记录</button></td>
